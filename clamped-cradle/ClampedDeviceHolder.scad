@@ -27,6 +27,9 @@
 //   - Use one-word names for parts. This prevents confusing variable 
 //     names that start with the same word.
 //   - Call the whole geometry "thing" (inspired by Thiniverse).
+// - Code formatting: When chaining transformations, use {…} only when 
+//   they apply to more than one commands. But always indent the commands 
+//   they apply to.
 // - Part initial position: modules should create their parts in the first 
 //   octant, with the bounding box started at the origin. Means, use 
 //   "center = false" when creating primitives. This leads to more 
@@ -54,25 +57,39 @@
 //   z-fighting does not hide anything preview mode and typcially generates 
 //   no errors when rendering, it is also ok to just Hide this z-fighting 
 //   by giving parts the same color.
+// - Angles for printability: measure angles against vertical when 
+//   discussing printability. Because the 45° rule does so ("angles must be 
+//   ≤45° to be printable on FDM printers).
+
 
 // (2) INCLUDES
 // ======================================================================
 
 // Cubes with roundes corners.
-include<MCAD/boxes.scad>
+use<MCAD/boxes.scad>
 
-// More shape primitives. We need the octagon here.
-include<MCAD/regular_shapes.scad>
+// Misc shape primitives. Needed to create the octagon prism.
+use<MCAD/regular_shapes.scad>
 
 
 // (3) PARAMETERS
 // ======================================================================
 
+// Instructions: due to current code limitations, there are interdependent 
+// parameters. So you have to configure things in the following order:
+// (1) Adjust outer and inner dimensions of the device holder.
+// (2) Set holder_bottomwall_d.
+// (3) Adjust holder_chamfer_delta visually so that the chamfers meet 
+//     in the corners of the bottom wall cutout.
+// (4) Adjust holder_bottom_t visually so that all parts of the bottom 
+//     wall are thick enough and also not too thick.
+// (5) Adjust all other parameters as needed.
+
 // Global resolution.
 // ----------------------------------------------------------------------
 
 // Smallest facet size to generate on rounded objects. (Use 2 for fast preview, 0.1 to export.) [mm]
-$fs = 2;
+$fs = 0.1;
 // Largest angle to generate on rounded objects. [degrees]
 $fa = 5;
 
@@ -91,6 +108,8 @@ device_w = 60.5;
 holder_play = 3;
 // Wall thickness of holder. [mm]
 holder_t = 3.5;
+// Wall thickness of holder bottom incl. chamfers. Adjust with visual feedback. [mm]
+holder_bottom_t = 14;
 // Width of holder (x dimension). [mm]
 holder_w = device_w + holder_play + 2 * holder_t;
 // Depth of holder (y dimension). [mm]
@@ -98,11 +117,17 @@ holder_d = device_d + holder_play + 2 * holder_t;
 // Height of holder (z dimension). [mm]
 holder_h = 80;
 // Corner radius of the inner shell corners. [mm]
-holder_corner_r_inner = 6;
+holder_corner_r_inner = 5; // Note: limit is 6 for the thermometer.
 // Corner radius of the outer shell corners. [mm]
 holder_corner_r_outer = holder_corner_r_inner + holder_t;
 // Width of the open section centered on the front and bottom faces. [mm]
 holder_cutout_w = 43;
+// Depth of the bottom wall to keep standing. The cable has to be able to pass it into the device's port. [mm]
+holder_bottomwall_d = 7;
+// Depth of the cutout to remove a part of the bottom wall. [mm]
+holder_cutout_d = holder_d - holder_bottomwall_d - holder_t;
+// Adjustment (pos. or neg.) to increase or decrease the angle of the back edge chamfer against vertical. Adjust visually. [no unit] (When the back edge chamfer angle increases, the front one decreases, due to current design limitations.)
+holder_chamfer_delta = 17;
 
 // Wall thickness of the connectors between holer and mount cylinder. [mm]
 support_t = 6;
@@ -177,46 +202,7 @@ module unused() {}
 // visible in print.
 //   To get a fully accurate version, set this to 0 for exporting / final 
 // rendering, and hope that it will cause no errors.
-nothing = 0.01;
-
-
-// (4) UTILITIES
-// ======================================================================
-
-// triangle(), regular_polygon(), octagon(), octagon_prism()
-// Source:
-//   OpenSCAD Shapes Library (www.openscad.org)
-//   https://github.com/openscad/MCAD/blob/master/regular_shapes.scad
-//   Copyright (C) 2010-2011  Giles Bathgate, Elmo Mäntynen
-//   License: GPL3 or later, LGPL 2.1 or later
-
-module triangle(radius) {
-    o = radius/2;		    // equivalent to radius*sin(30)
-    a = radius*sqrt(3)/2;	// equivalent to radius*cos(30)
-    polygon(points = [[-a,-o], [0,radius], [a,-o]], paths=[[0,1,2]]);
-}
-
-module regular_polygon(sides, radius) {
-    function dia(r) = sqrt(pow(r*2,2)/2);  // sqrt((r*2^2)/2) if only we had an exponention op
-    if(sides < 2) square([radius,0]);
-    if(sides == 3) triangle(radius);
-    if(sides == 4) square([dia(radius),dia(radius)],center=true);
-    if(sides > 4) {
-        angles = [ for (i = [0:sides-1]) i*(360/sides) ];
-        coords = [ for (th=angles) [radius*cos(th), radius*sin(th)] ];
-        polygon(coords);
-    }
-}
-
-module octagon(radius) {
-    regular_polygon(8, radius);
-}
-
-module octagon_prism(height, radius) {
-    translate([0, 0, -height/2]) {
-        linear_extrude(height = height) octagon(radius);
-    }
-}
+nothing = 0.02;
 
 
 // (5) PART GEOMETRIES
@@ -224,51 +210,104 @@ module octagon_prism(height, radius) {
 
 // Clamped octagon.
 module mountee() {
-    octagon_prism(height = mountee_w, radius = mountee_r_outer);
+    rotate([0, 90, 0]) {
+        edge_to_face_angle = 360 / 8 / 2; // To rotate a face to the top.
+        rotate([0, 0, edge_to_face_angle])
+            translate([0, 0, -mountee_w/2]) {
+                // Re-implementing MCAD's octagon_prism() as it uses deprecated reg_polygon().
+                linear_extrude(height = mountee_w)
+                    regular_polygon(8, mountee_r_outer);
+            }
+    }
 }
 
 // Outer holder shape for the electronic device.
-module outer_holder() {
-    // re-center the holder after cutting the top, as that's assumed in the calling code for positioning
+module holder_shell() {
+    // Re-center the holder after cutting the top, as that's assumed in the calling code for positioning.
     translate([0, 0, holder_corner_r_outer/2]) {
         difference() {
-            // outer holder geometry, with a rounded top as that's the library primitive
+            // Outer holder geometry, with a rounded top as that's the library primitive.
             roundedBox([holder_w, holder_d, holder_h + holder_corner_r_outer], holder_corner_r_outer, false);
             
-            // intersector to remove the rounded top section of the holder
+            // Intersector to remove the rounded top section of the holder.
             translate([0, 0, holder_h/2])
                 cube([holder_w + nothing, holder_d + nothing, holder_corner_r_outer + nothing], center = true);
         }
     }
 }
 
+module holder_intersector(w, d, h_straight, h_sloped) {
+    intersection() {
+        h = h_straight + h_sloped;
+        
+        // Basic shape.
+        // depth is added to height as that's what the intersector needs for 
+        roundedBox([w + nothing, d + nothing, h + nothing], holder_corner_r_inner, true);
+        
+        // Intersector for the chamfers at the bottom.
+        rotate([0, 180, 0]) {
+            // Center the intersector.
+            translate([-w/2, -d/2, -h/2]) {
+                // Orientations below refer to a "hip roof on pillar" geometry.
+                chamfer_points = [
+                    // pillar bottom rectangle
+                    [0, 0, 0], // 0. front left
+                    [w, 0, 0], // 1. front right
+                    [w, d, 0], // 2. back right
+                    [0, d, 0], // 3. back left
+                    // pillar top rectangle
+                    [0, 0, h_straight], // 4. front left
+                    [w, 0, h_straight], // 5. front right
+                    [w, d, h_straight], // 6. back right
+                    [0, d, h_straight], // 7. back left        
+                    // roof ridge line
+                    [w/2, d/2 - holder_chamfer_delta, h], // 8. left
+                    [w/2, d/2 - holder_chamfer_delta, h], // 9. right
+                ];
+                chamfer_faces = [
+                    // bottom face
+                    [0,1,2,3], 
+                    // pillar sides
+                    [0,4,5,1], [1,5,6,2], [2,6,7,3], [0,3,7,4], 
+                    // hip roof
+                    [4,8,9,5], [5,9,6], [6,9,8,7], [4,7,8]];
+                polyhedron(points = chamfer_points, faces = chamfer_faces);
+            }
+        }
+    }
+}
+
 module holder() {
     difference() {
-        outer_holder();
+        holder_shell();
         
-        // inner holder geometry
-        inner_holder_h = holder_h - holder_corner_r_outer;
-        translate([0, 0, (holder_h - inner_holder_h)/2 + nothing])
-            roundedBox([holder_w - 2*holder_t, holder_d - 2*holder_t, inner_holder_h], holder_corner_r_inner, true);
+        // Inner holder geometry.
+        intersector_w = holder_w - 2 * holder_t;
+        intersector_d = holder_d - 2 * holder_t;
+        intersector_h_straight = holder_h - holder_bottom_t;
+        intersector_h_sloped = intersector_w/2; // Must be ≥ intersector_w/2 for printability (≥ 45° against printer bed).
+        intersector_h = intersector_h_straight + intersector_h_sloped;
         
-        // cutout for front and bottom faces
-        translate([0, -(holder_t/2), 0])
-            cube([holder_cutout_w, holder_d - holder_t + nothing, holder_h + nothing], center = true);
+        translate([0, 0, (holder_h - intersector_h)/2 + nothing]) // align tops
+            holder_intersector(intersector_w, intersector_d, intersector_h_straight, intersector_h_sloped);
+        
+        // Cutout for front and (part of) bottom wall.
+        translate([0, -holder_t/2 - holder_bottomwall_d, 0])
+            cube([holder_cutout_w, holder_cutout_d + nothing, holder_h + nothing], center = true);
     }
 }
 
 // One of two identical support connectors between device holder and clamped cylinder.
 module support_wall() {
-    linear_extrude(height = support_t, center = true) {
-        translate([-support_h/2, -support_d/2, 0]) { // center to origin
-            polygon([
-                [0, 0], 
-                [support_h, 0], 
-                [support_h, support_d], 
-                [support_d, support_d]
-            ]);
-        }
-    }
+    rotate([0, -90, 0])
+        linear_extrude(height = support_t, center = true)
+            translate([-support_h/2, -support_d/2, 0]) // center to origin
+                polygon([
+                    [0, 0], 
+                    [support_h, 0], 
+                    [support_h, support_d], 
+                    [support_d, support_d]
+                ]);
 }
 
 
@@ -279,34 +318,24 @@ module main() {
     union() {
         
         // Clamped octagon.
-        translate([thing_w/2, thing_d - mountee_r_inner, thing_h - mountee_r_inner]) {
-            rotate([0, 90, 0]) {
-                edge_to_face_angle = 360 / 8 / 2; // To rotate a face to the top.
-                rotate([0, 0, edge_to_face_angle]) {
-                    color("blue") mountee();
-                }
-            }
-        }
+        color("blue")
+            translate([thing_w/2, thing_d - mountee_r_inner, thing_h - mountee_r_inner])
+                mountee();
 
         // Support connectors: left, right.
         offset_x = mountee_w/2 - mountee_overhang - support_t/2;
-        // offset_y = 2 * mountee_r_inner - mountee_edge/2;
         offset_y = support_d/2 + mountee_support_offset;
-        translate([thing_w/2 - offset_x, thing_d - offset_y, thing_h - support_h/2]) {
-            rotate([0, -90, 0]) {
-                color("blue") support_wall();
-            }
-        }
-        translate([thing_w/2 + offset_x, thing_d - offset_y, thing_h - support_h/2]) {
-            rotate([0, -90, 0]) {
-                color("blue") support_wall();
-            }
+        color("blue") {
+            translate([thing_w/2 - offset_x, thing_d - offset_y, thing_h - support_h/2])
+                support_wall();
+            translate([thing_w/2 + offset_x, thing_d - offset_y, thing_h - support_h/2])
+                support_wall();
         }
 
         // Device holder.
-        translate([thing_w/2, holder_d/2, thing_h/2]) {
-            color("yellow") holder();
-        }
+        color("yellow")
+            translate([thing_w/2, holder_d/2, thing_h/2])
+                holder();
     }
 }
 
