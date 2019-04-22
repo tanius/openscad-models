@@ -13,7 +13,8 @@
 //   printing.
 // - Thing position: The thing should be in the first octant ("only use 
 //   positive coordinates"). Because that's the only practical universal 
-//   convention for the origin.
+//   convention for the origin, and it makes coordinates and part 
+//   measurements idential.
 // - Units: millimeters and 0-360 degrees only.
 // - Abbreviations:
 //   - w = width (local x coordinate)
@@ -26,8 +27,16 @@
 //   - Use one-word names for parts. This prevents confusing variable 
 //     names that start with the same word.
 //   - Call the whole geometry "thing" (inspired by Thiniverse).
-// - Part initial position: create parts centered around their local origin 
-//   (as that is "natural"). Means, use "center = true".
+// - Part initial position: modules should create their parts in the first 
+//   octant, with the bounding box started at the origin. Means, use 
+//   "center = false" when creating primitives. This leads to more 
+//   intuitive translate() calls, avoiding the need to divide the whole 
+//   calculation by two as in the case when objects start centered.
+// - Part initial rotation: If the part is re-usable beyond the current 
+//   thing, create it as if mounting it to the x/y plane. If the part 
+//   is not re-usable, create it in the rotation needed for mounting it to 
+//   the rest of the thing, because that is the natural and only useful 
+//   rotation that such a part can have.
 // - Part creation in x/y plane: Draw it so that as few rotations as 
 //   possible bring it into its final alignment. For that, imagine the 
 //   reverse: how to rotate the final object's part into the x/y plane.
@@ -36,21 +45,35 @@
 //   transforming x to y axis).
 // - Module content: create one part per modules, without a color and 
 //   without moving or rotating it for assembly.
-// - Avoid z-fighting for difference() by making the cutout larger. Hide 
-//   z-fighting for union() by giving parts the same color. No need to 
-//   avoid it here, as it's just a visual annoyance and not even hiding 
-//   anything one would want to see in the preview.
+// - Library choice: Try to use the MCAD library as much as possible. It is
+//   the only library bundled by the OpenSCAD installer, so it can always 
+//   be relied on without requiring the user to install it first.
+// - Avoid z-fighting for difference() by making the cutout larger, and 
+//   avoid z-fighting for union() by making the parts overlap. Use the 
+//   variable "nothing=0.01" for that (see below). Since union() 
+//   z-fighting does not hide anything preview mode and typcially generates 
+//   no errors when rendering, it is also ok to just Hide this z-fighting 
+//   by giving parts the same color.
+
+// (2) INCLUDES
+// ======================================================================
+
+// Cubes with roundes corners.
+include<MCAD/boxes.scad>
+
+// More shape primitives. We need the octagon here.
+include<MCAD/regular_shapes.scad>
 
 
-// (2) PARAMETERS
+// (3) PARAMETERS
 // ======================================================================
 
 // Global resolution.
 // ----------------------------------------------------------------------
 
-// Smallest facet size to generate. [mm]
-$fs = 0.1;
-// Largest angle to generate. [degrees]
+// Smallest facet size to generate on rounded objects. (Use 2 for fast preview, 0.1 to export.) [mm]
+$fs = 2;
+// Largest angle to generate on rounded objects. [degrees]
 $fa = 5;
 
 // Electronic device.
@@ -78,6 +101,8 @@ holder_h = 80;
 holder_corner_r_inner = 6;
 // Corner radius of the outer shell corners. [mm]
 holder_corner_r_outer = holder_corner_r_inner + holder_t;
+// Width of the open section centered on the front and bottom faces. [mm]
+holder_cutout_w = 43;
 
 // Wall thickness of the connectors between holer and mount cylinder. [mm]
 support_t = 6;
@@ -141,56 +166,22 @@ thing_h = holder_h;
 module unused() {}
 
 // Fix for z-fighting (see https://en.wikipedia.org/wiki/Z-fighting ).
-// z_peace is the chosen amount of overlap to "extend our cuts and 
+// "nothing" is the chosen amount of overlap to "extend our cuts and 
 // embed our joins" (see http://forum.openscad.org/id-tp20439p20460.html ).
-peace = 1;
+// The naming is typical in OpenSCAD. 
+//   To keep the formulas simple, this is applied to either positioning 
+// or object sizing, depending on the case. But not to both, so that one 
+// would cancel each other out exactly with respect to the rest of the 
+// geometry. This introduces an acceptable inaccuracy. It may generate 
+// additional faces for difference() but these are too small to be 
+// visible in print.
+//   To get a fully accurate version, set this to 0 for exporting / final 
+// rendering, and hope that it will cause no errors.
+nothing = 0.01;
 
 
-// (3) UTILITIES
+// (4) UTILITIES
 // ======================================================================
-
-// Bevelled Cube
-// Parameters:
-//   size: cube size
-//   cr:   corner radius (if cr==0, a standar cube is built)
-//   cres: Corner resolution (in points). cres=0 means flat corners
-// Source:
-//   bevel edge cube
-//   Copyright © 2012 Juan Gonzalez-Gomez (Obijuan)
-//   https://github.com/Obijuan/obiscad/blob/master/obiscad/bcube.scad
-//   Licence: CC-BY-SA 3.0
-module bcube(size, cr = 0, cres = 0) {
-    // internal cube size
-    bsize = size - 2 * [cr, cr, 0];
-
-    // Get the (x,y) coorner coordinates in the first quadrant.
-    x = bsize[0] / 2;
-    y = bsize[1] / 2;
-
-    // A corner radius of 0 means a standar cube.
-    if (cr == 0)
-        cube(bsize, center = true);
-    else {
-        // The height of minkowski object is double. So we cale by 0.5.
-        scale([1, 1, 0.5]) {
-
-            // center the minkowski object
-            translate([-x, -y, 0]) {
-
-                // build the beveled cube with minkowski()
-                minkowski() {
-
-                    // internal cube
-                    cube(bsize, center = true);
-
-                    // cylinder in the corner (first cuadrant)
-                    translate([x, y, 0])
-                        cylinder(r = cr, h = bsize[2], center = true, $fn = 4*(cres+1));
-                }
-            }
-        }
-    }
-}
 
 // triangle(), regular_polygon(), octagon(), octagon_prism()
 // Source:
@@ -228,7 +219,7 @@ module octagon_prism(height, radius) {
 }
 
 
-// (3) PART GEOMETRIES
+// (5) PART GEOMETRIES
 // ======================================================================
 
 // Clamped octagon.
@@ -236,16 +227,33 @@ module mountee() {
     octagon_prism(height = mountee_w, radius = mountee_r_outer);
 }
 
-// Holder for the electronic device.
+// Outer holder shape for the electronic device.
+module outer_holder() {
+    // re-center the holder after cutting the top, as that's assumed in the calling code for positioning
+    translate([0, 0, holder_corner_r_outer/2]) {
+        difference() {
+            // outer holder geometry, with a rounded top as that's the library primitive
+            roundedBox([holder_w, holder_d, holder_h + holder_corner_r_outer], holder_corner_r_outer, false);
+            
+            // intersector to remove the rounded top section of the holder
+            translate([0, 0, holder_h/2])
+                cube([holder_w + nothing, holder_d + nothing, holder_corner_r_outer + nothing], center = true);
+        }
+    }
+}
+
 module holder() {
     difference() {
-        // outer holder geometry
-        bcube([holder_w, holder_d, holder_h], cr = holder_corner_r_outer, cres = 10);
-    
+        outer_holder();
+        
         // inner holder geometry
-        translate([0, 0, holder_t/2 + peace]) {
-            bcube([holder_w - 2*holder_t, holder_d - 2*holder_t, holder_h - holder_t + peace], cr = holder_corner_r_inner, cres = 10);
-        }
+        inner_holder_h = holder_h - holder_corner_r_outer;
+        translate([0, 0, (holder_h - inner_holder_h)/2 + nothing])
+            roundedBox([holder_w - 2*holder_t, holder_d - 2*holder_t, inner_holder_h], holder_corner_r_inner, true);
+        
+        // cutout for front and bottom faces
+        translate([0, -(holder_t/2), 0])
+            cube([holder_cutout_w, holder_d - holder_t + nothing, holder_h + nothing], center = true);
     }
 }
 
@@ -264,7 +272,7 @@ module support_wall() {
 }
 
 
-// (4) PART ASSEMBLY
+// (6) PART ASSEMBLY
 // ======================================================================
 
 module main() {
@@ -273,8 +281,8 @@ module main() {
         // Clamped octagon.
         translate([thing_w/2, thing_d - mountee_r_inner, thing_h - mountee_r_inner]) {
             rotate([0, 90, 0]) {
-                edge_to_face = 360 / 8 / 2; // To rotate a face to the top.
-                rotate([0, 0, edge_to_face]) {
+                edge_to_face_angle = 360 / 8 / 2; // To rotate a face to the top.
+                rotate([0, 0, edge_to_face_angle]) {
                     color("blue") mountee();
                 }
             }
@@ -303,9 +311,7 @@ module main() {
 }
 
 
-// (5) MAIN PROGRAM
+// (7) MAIN PROGRAM
 // ======================================================================
 
 main();
-
-octagon();
