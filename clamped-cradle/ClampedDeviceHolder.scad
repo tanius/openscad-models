@@ -75,6 +75,12 @@ use<MCAD/regular_shapes.scad>
 // (3) PARAMETERS
 // ======================================================================
 
+// In the list below, the parameters containing a number are meant to be 
+// user-configurable. Those containing a formula are derived values.
+// 
+// The initial parameter configuration is adapted for the device 
+// Voltcraft PL-125-T4USB (a thermometer with four wired sensors and USB port)
+
 // Instructions: due to current code limitations, there are interdependent 
 // parameters. So you have to configure things in the following order:
 // (1) Adjust outer and inner dimensions of the device holder.
@@ -89,7 +95,7 @@ use<MCAD/regular_shapes.scad>
 // ----------------------------------------------------------------------
 
 // Smallest facet size to generate on rounded objects. (Use 2 for fast preview, 0.1 to export.) [mm]
-$fs = 0.1;
+$fs = 1;
 // Largest angle to generate on rounded objects. [degrees]
 $fa = 5;
 
@@ -98,14 +104,14 @@ $fa = 5;
 
 // Depth of electronic device to mount. [mm] (Exclude protruding keys, as there will be a cutout for them.)
 device_d = 28;
-// Width of electronic device to mount. [mm]
+// Width of electronic device to mount. Measure at the widest section that will be put into the holder. [mm]
 device_w = 60.5;
 
 // Holder for the electronic device.
 // ----------------------------------------------------------------------
 
-// Additional width / height for loose fit. [mm]
-holder_play = 3;
+// Additional width / depth for loose fit. [mm]
+holder_play = 2;
 // Wall thickness of holder. [mm]
 holder_t = 3.5;
 // Wall thickness of holder bottom incl. chamfers. Adjust with visual feedback. [mm]
@@ -127,7 +133,7 @@ holder_bottomwall_d = 7;
 // Depth of the cutout to remove a part of the bottom wall. [mm]
 holder_cutout_d = holder_d - holder_bottomwall_d - holder_t;
 // Adjustment (pos. or neg.) to increase or decrease the angle of the back edge chamfer against vertical. Adjust visually. [no unit] (When the back edge chamfer angle increases, the front one decreases, due to current design limitations.)
-holder_chamfer_delta = 17;
+holder_chamfer_delta = 18.5;
 
 // Wall thickness of the connectors between holer and mount cylinder. [mm]
 support_t = 6;
