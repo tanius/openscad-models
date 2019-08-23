@@ -84,21 +84,32 @@
 //   printability. Because the 45° rule for overhangs does so ("angles must be 
 //   ≤45° to be printable on FDM printers").
 
-
+//
 // (1) INCLUDES
 // ======================================================================
 
 use <threads.scad>
 
-
+//
 // (2) PARAMETERS
 // ======================================================================
 
-/* [General] */
+/* [Render control] */
 // ----------------------------------------------------------------------
 
 // Which part to generate.
-part = "both"; // ["lid", "body", "both"]
+part = "body"; // ["lid", "body", "both"]
+
+// Render quality. Fast preview does not render threads.
+quality = "preview"; // ["fast preview", "preview", "final"]
+// Fragment number in a full circle. (Threads set their own number.)
+$fn = (quality == "final") ? 200 :
+      (quality == "preview") ? 60 : 
+      (quality == "fast preview") ? 30 : 30; // Same as the default $fa == 12.
+thread_testmode = (quality == "fast preview") ? true : false;
+
+/* [Measures] */
+// ----------------------------------------------------------------------
 
 // Inner height of the container (means, of the base; the lid adds zero inner height). [mm]
 inner_h = 66;
@@ -120,9 +131,6 @@ lid_turns = 3;
 
 // Number of thread starts.
 thread_starts = 1;
-
-// TODO
-$fn = 200;
 
 /* [Hidden] */
 // ----------------------------------------------------------------------
@@ -155,7 +163,7 @@ thread_gap_r = 1.25; // 1.25 mm radial gap between inner and outer thread gives 
 // Outer radius based on the components in the lid section, from inside out.
 outer_r = inner_min_r + min_wall_t + thread_r + thread_gap_r + min_wall_t;
 
-
+//
 // (3) UTILITY FUNCTIONS
 // ======================================================================
 
@@ -169,8 +177,7 @@ module serrate(radius, segments, cube_x, cube_y, cube_z) {
                 cube([cube_x, cube_y, cube_z], center=true);
     }
 }
-
-
+//
 // (4) PART GEOMETRIES
 // ======================================================================
 
@@ -184,7 +191,7 @@ module container() {
                 cylinder(r=30, h=75, center=true);
             
             // Threaded section, with thread.
-            english_thread(2, 4, 0.5);
+            english_thread(2, 4, 0.5, test=thread_testmode);
         }
 
         // Cutout that makes the container hollow.
@@ -219,7 +226,7 @@ module lid() {
         // - factor 1.05: good for 50 mm thread inner diameter, too tight for 25 mm (2.5 mm gap)
         // - factor 1.1: good for 25 mm thread inner diameter, too loose for 50 mm (2.5 mm gap)
         scale([1.05, 1.05, 1])
-            english_thread(2, 4, 0.5, internal=true);
+            english_thread(2, 4, 0.5, internal=true, test=thread_testmode);
         
         // Grip surface around the lid.
         serrate(30, 15, 2, 2, 40);
@@ -227,16 +234,21 @@ module lid() {
 }
 
 
+//
 // (5) ASSEMBLY
 // ======================================================================
 
-if (part == "lid") {
-    lid();
+module main () {
+    if (part == "lid") {
+        lid();
+    }
+    else if (part == "body") {
+        container();
+    }
+    else if (part == "both") {
+        translate([0,0,20]) lid();
+        container();
+    }
 }
-else if (part == "body") {
-    container();
-}
-else if (part == "both") {
-    translate([0,0,20]) lid();
-    container();
-}
+
+main();
