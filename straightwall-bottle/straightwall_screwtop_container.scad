@@ -1,7 +1,7 @@
-// Parametric round container with screw lid and straight walls
+// Parametric container with straight walls and a screw top
 //
 // Project URL:
-//   [TODO]
+//   https://www.thingiverse.com/thing:3826892
 // 
 // Author:
 //   tanius (https://www.thingiverse.com/tanius)
@@ -10,14 +10,31 @@
 //   Creative Commons Attribution 4.0 International
 // 
 // Based on:
-//   "Tall threaded tube" by sej7278
-//   http://www.thingiverse.com/thing:2175003
-//   licenced under Creative Commons Attribution (CC-BY)
+// 1. "Tall threaded tube" by sej7278
+//    http://www.thingiverse.com/thing:2175003
+//    licenced under Creative Commons Attribution (CC-BY)
+// 2. "Screw Top Containers" by pmoews
+//    https://www.thingiverse.com/thing:455426
+//    licenced under Creative Commons Attribution (CC-BY)
 // 
 // Installation:
-//   [TODO]
+//   Place all files into the same directory and open this file 
+//   in OpenSCAD. This way, it will find the required library 
+//   "threads.scad" that is supplied together with this main file.
 //
 // Todo:
+// - Move comment content from the start of this file to a file 
+//   README.md. That content would be copied to the Thingiverse 
+//   form when publishing there, so should be aligned to its form 
+//   fields.
+// - Add a few pictures with example containers to the README, as the 
+//   .stl export files will not be published in all cases (not on 
+//   Github for example, as they are generated files).
+// - Add a LICENCE.txt file with the right licence.
+// - Publish the code on Github, and put the link here.
+// - Make the Thingiverse Customizer app work for this design. For that, 
+//   create a "compilation" script that will combine this file with 
+//   threads.scad.
 // - Fix that the continuous wall thickness at the neck is larger than 
 //   wall_t, increasing the total outer diameter. This is because 
 //   threads.scad does not make the radial extension of the thread 
