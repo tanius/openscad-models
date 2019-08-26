@@ -1,6 +1,6 @@
 /* 
 
-# Additional documentation for "Parametric container with straight walls and a screw top"
+# Additional documentation for "Straightwall Bottle"
 
 
 ## 1. Basic Description

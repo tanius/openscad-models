@@ -1,4 +1,6 @@
-// Parametric container with straight walls and a screw top
+// Straightwall Bottle
+//
+// A parametric bottle-like container with straight walls and a screw top.
 //
 // Description:
 //   A fully parametric screw-lid container / bottle container 
