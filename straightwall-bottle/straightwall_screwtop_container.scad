@@ -142,7 +142,7 @@ use <threads.scad>
 show = "both (opened)"; // ["body", "lid", "both (closed)", "both (opened)", "both (cross-section)"]
 
 // Render quality. Fast preview does not render threads.
-quality = "preview"; // ["fast preview", "preview", "final render"]
+quality = "preview"; // ["fast preview", "preview", "final rendering"]
 // Fragment number in a full circle. (Threads set their own number.)
 $fn = (quality == "final rendering") ? 120 :
       (quality == "preview") ? 60 : 
@@ -393,7 +393,6 @@ module lid() {
         
         // Internal thread, drilled into the lid.
         leadin = (quality == "final rendering") ? 3 : 0; // Workaround for a bug in threads.scad that causes z-fighting in preview mode when applying this chamfer.
-        // TODO The leadin setting seems to have no effect anymore.
         color("Chocolate")
             translate([0, 0, -nothing])
                 metric_thread(diameter=2*lid_thread_outer_r, pitch=thread_pitch, length=thread_h + nothing, internal=true, n_starts=thread_starts, leadin=leadin, angle=thread_angle, test=thread_testmode);
