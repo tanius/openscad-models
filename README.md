@@ -19,7 +19,7 @@
 
     Special care was taken to create a design that results in a usable, fast preview mode in OpenSCAD, to allow an interactive development process. This was done by using a very fast thread generation library (`revolve2.scad`) and preferring extrusion to `difference()` operations, because it is much faster.
 
-**Usage.** To use this design, add filter material from a surgical mask or similar in between the two parts, with a good amount of overlap so that it covers also the thread section. Screw the parts together. The filter material is meant to be captured in between the inner and outer thread, which holds it in place and tightens it against the filter holder.
+* **Usage.** To use this design, add filter material from a surgical mask or similar in between the two parts, with a good amount of overlap so that it covers also the thread section. Screw the parts together. The filter material is meant to be captured in between the inner and outer thread, which holds it in place and tightens it against the filter holder.
 
 * **Installation.** Clone or download the repository, or download all the files. Open `respirator_outward_filter.scad` in OpenSCAD. It will find the required library `revolve2.scad` that is supplied together with the design in the same directory.
 
