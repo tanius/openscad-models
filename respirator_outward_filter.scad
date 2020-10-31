@@ -7,8 +7,7 @@ use <revolve2.scad>
 // (2) PARAMETERS
 // ======================================================================
 
-/* [Render control] */
-// ----------------------------------------------------------------------
+SECTION_1_RENDER_CONTROL = "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀";
 
 // Render quality. Influences segments per degree for circular shapes.
 quality = "fast preview"; // ["very fast preview", "fast preview", "preview", "rendering"]
@@ -18,10 +17,7 @@ scene_content = "both (cap opened)"; // ["body only", "cap only", "both (cap ope
 show_cross_section = false;
 
 
-/* [Measures] */
-// ----------------------------------------------------------------------
-
-SECTION_1_HEIGHT_MEASURES = "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀";
+SECTION_2_HEIGHT_MEASURES = "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀";
 
 // Default wall thickness. [mm]
 wall_t = 1.8;
@@ -38,7 +34,8 @@ thread_section_h = 9;
 // Height of the grid pattern's "lines". [mm]
 grid_h = 2.7;
 
-SECTION_2_RADIUS_MEASURES = "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀";
+
+SECTION_3_RADIUS_MEASURES = "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀";
 
 // Radius between clip elements of the clip-mounted section, compatible with the respirator's exhale port cover clip-on mechanism. [mm] (Use 24.35 mm for the Polish MP-5 respirator, which is the measure from its original exhale port cover.)
 clip_section_clip_r = 24.35;
@@ -52,7 +49,8 @@ thread_section_inner_r = 35;
 // Outside radius of the cap. Must accommodate the thread to be subtracted and still provide sufficient strength. [mm]
 cap_outer_r = 42;
 
-SECTION_3_OTHER_MEASURES = "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀";
+
+SECTION_4_OTHER_MEASURES = "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀";
 
 // Turns to close resp. open the cap. (For comparison, soda bottles use "2".)
 cap_turns = 1.7;

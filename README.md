@@ -2,8 +2,8 @@
 
 **[1. Overview](#1-overview)**<br/>
 **[2. Parameters](#2-parameters)**<br/>
-**[3. Todo List](#3-todo-list)**<br/>
-**[4. Code Conventions](#4-code-conventions)**
+**[3. Code Conventions](#3-code-conventions)**<br/>
+**[4. Todo List](#4-todo-list)**
 
 <p align="center">
   <a href="README.DesignRendering.png?raw=true"><img src="README.DesignRendering.png?raw=true" width="40%"></a><br/>
@@ -31,12 +31,12 @@
 
 * **Author.** tanius ([Github](https://github.com/tanius), [Thingiverse](https://www.thingiverse.com/tanius))
 
-* **Licence.** Dual-licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) (or any later version at your option) and [Unlicense](https://unlicense.org/). For any libraries bundled in this repository, the licenses mentioned in these library files apply.
+* **Licence.** This design is dual-licensed under [Unlicense](https://unlicense.org/) and [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) (or any later version at your option). Libraries bundled with this repository may use different licences, as mentioned in their library files.
 
 
 ## 2. Parameters
 
-All measures are in mm, all angles in degrees.
+All measures are in millimeters. All angles are in degrees.
 
 * `quality`: Render quality. Influences segments per degree for circular shapes.
 * `scene_content`: What to show. Options are: "body only", "cap only", "both (cap opened)", "both (cap closed one turn)", "both (cap closed)".
@@ -54,14 +54,7 @@ All measures are in mm, all angles in degrees.
 * `thread_gap`: Radial gap between inner and outer thread. Meant to accommodate the filter material.
 
 
-## 3. Todo List
-
-* Complete the in-code documentation using Doxygen syntax.
-* Generate the documentation in HTML format using Doxygen. Since OpenSCAD is quite similar to C syntax, this should be possible relatively easily.
-* See the todo items as found in the code, marked with `TODO:`.
- 
-
-## 4. Code Conventions
+## 3. Code Conventions
 
 The following code conventions are used in the design's OpenSCAD code (so, not in the `revolve2.scad` library).
 
@@ -104,3 +97,10 @@ The following code conventions are used in the design's OpenSCAD code (so, not i
 * **Avoiding z-fighting.** For difference() by making the cutout larger, and avoid z-fighting for union() by making the parts overlap. Use the variable "nothing=0.01" for that (see below). Since union() z-fighting does not hide anything in preview mode and generates no errors when rendering, it is also ok to just hide these z-fighting artifacts visually by giving parts the same color.
 
 * **Angles for printability.** Measure angles against vertical when discussing printability. Because the 45° rule for overhangs does so ("angles must be ≤45° to be printable on FDM printers").
+
+
+## 4. Todo List
+
+* Create a version that can be used with the Thingiverse customizer, by embedding `revolve2.scad` into the main design file.
+* Generate the documentation in HTML format using Doxygen. Since OpenSCAD is quite similar to C syntax, this should be possible relatively easily.
+* All todo items found in the code, marked with `@todo`.
