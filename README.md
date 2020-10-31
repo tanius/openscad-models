@@ -1,11 +1,21 @@
 # Parametric Respirator Outward Filter
 
+**[1. Overview](#1-overview)**
+**[2. Parameters](#2-parameters)**
+**[3. Todo List](#3-todo-list)**
+**[4. Code Conventions](#4-code-conventions)**
+
+<p align="center">
+  <a href="README.DesignRendering.png?raw=true"><img src="README.DesignRendering.png?raw=true" width="40%"></a><br/>
+  (Click to enlarge.)
+</p>
+
 
 ## 1. Overview
 
 * **Description.** A fully parametric, 3D printable filter holder for the exhale port of respirators. The intended use is outward protection of others from pathogens that may be exhaled by the respirator user. This makes the use of a valved respirator suitable in situations where masks with outward protection are required, such as in many public spaces during the COVID-19 pandemic. To use this design, add filter material from a surgical mask or similar in between the two parts with a good amount of overlap over the threas. Screw them together. The filter material is meant to be tightened against the filter holder by being captured in the thread.
 
-    The initial parameter values create a version for the Polish MP-5 gas mask, using a clip-on mechanism. To adapt it to other respirators, you will have to design your own mounting mechanism, in addition to configuring the parameters.
+    The initial parameter values create a version for the [Polish military respirator MP-5](https://gasmaskandrespirator.fandom.com/wiki/MP-5), using a clip-on mechanism. To adapt it to other respirators, you will have to design your own mounting mechanism, in addition to configuring the parameters.
 
     Special care was taken to create a design that results in a usable, fast preview mode in OpenSCAD, to allow an interactive development process. This was done by using a very fast thread generation library (`revolve2.scad`) and preferring extrusion to `difference()` operations, because it is much faster.
 
