@@ -15,7 +15,7 @@
 
 * **Description.** A fully parametric, 3D printable filter holder for the exhale port of respirators. The intended use is outward protection of others from pathogens that may be exhaled by the respirator user. This makes the use of a valved respirator suitable in situations where masks with outward protection are required, such as in many public spaces during the COVID-19 pandemic. To use this design, add filter material from a surgical mask or similar in between the two parts with a good amount of overlap over the threas. Screw them together. The filter material is meant to be tightened against the filter holder by being captured in the thread.
 
-    The initial parameter values create a version for the [Polish military respirator MP-5](https://gasmaskandrespirator.fandom.com/wiki/MP-5), using a clip-on mechanism. To adapt it to other respirators, you will have to design your own mounting mechanism, in addition to configuring the parameters.
+    The initial parameter values create a version for the [Polish military respirator MP-5](https://gasmaskandrespirator.fandom.com/wiki/MP-5), using a clip-on mechanism. To adapt it to other respirators, you will have to design your own mounting mechanism, in addition to configuring the parameters. STL files for this version are [available on Thingiverse](https://www.thingiverse.com/thing:4639075), so you don't have to render them yourself with OpenSCAD.
 
     Special care was taken to create a design that results in a usable, fast preview mode in OpenSCAD, to allow an interactive development process. This was done by using a very fast thread generation library (`revolve2.scad`) and preferring extrusion to `difference()` operations, because it is much faster.
 
@@ -25,7 +25,7 @@
 
 * **3D printing.** The initial parameters for the MP-5 compatible outward filter result in a part that is 3D printable without supports. As long as your chosen parameters for part radii and for `cone_section_truncate_angle` do not result in an overhang of >45° of the central cone section wall, the part is printable without supports. All threads use 45° flank angles for printability, and the clip ring adjusts itself to the inclination so that no overhang exceeds 45°.
 
-* **Project URL.** [tanius/respirator-outward-filter on Github](https://github.com/tanius/respirator-outward-filter)
+* **Project home.** [tanius/respirator-outward-filter on Github](https://github.com/tanius/respirator-outward-filter)
 
 * **Author.** tanius ([Github](https://github.com/tanius), [Thingiverse](https://www.thingiverse.com/tanius))
 
