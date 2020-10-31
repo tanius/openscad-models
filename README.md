@@ -1,8 +1,8 @@
 # Parametric Respirator Outward Filter
 
-**[1. Overview](#1-overview)**
-**[2. Parameters](#2-parameters)**
-**[3. Todo List](#3-todo-list)**
+**[1. Overview](#1-overview)**<br/>
+**[2. Parameters](#2-parameters)**<br/>
+**[3. Todo List](#3-todo-list)**<br/>
 **[4. Code Conventions](#4-code-conventions)**
 
 <p align="center">
