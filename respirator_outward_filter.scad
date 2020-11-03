@@ -37,10 +37,10 @@ grid_h = 2.7;
 
 SECTION_3_RADIUS_MEASURES = "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀";
 
-// Radius between clip elements of the clip-mounted section, compatible with the respirator's exhale port cover clip-on mechanism. [mm] (Use 24.35 mm for the Polish MP-5 respirator, which is the measure from its original exhale port cover.)
-clip_section_clip_r = 24.35;
+// Radius between the tips of the clip elements in the clip-mounted section. Must be compatible with the respirator's exhale port cover clip-on mechanism – use 24.00 mm for the Polish MP-5 respirator. [mm]
+clip_section_clip_r = 23.99;
 
-// Inner radius of the clip-mounted section for the respirator's exhale port cover. Can be sized to allow push-fit connection with the original exhale port cover, after grinding out the clip-on mechanism. [mm] (Use 25.75 mm for the Polish MP-5 respirator to get a good press-fit already at the top half of the exhale port cover. Radius at the bottom is 25.85 mm.)
+// Inner radius of the clip-mounted section for the respirator's exhale port cover. Can be sized to allow push-fit connection with the original exhale port cover, after grinding out the clip-on mechanism. Use 25.75 mm for the Polish MP-5 respirator to get a good press-fit already at the top half of the exhale port cover. Radius at the bottom is 26.00 mm. [mm]
 clip_section_inner_r = 25.75;
 
 // Inside radius in the threaded section. [mm]
@@ -72,8 +72,8 @@ thread_pitch = thread_section_h / cap_turns;
 // Basic shape of the thread, conforming to an ISO thread but with 45° instead of 60° flank angles for printability.
 // Defined as if bolt core diameter is zero and thread period is 1 mm.
 //
-// TODO: Modify to use the shape of inner ISO threads.
-// TODO: Find a more elegant, scalable way to define a thread type profile.
+// @todo Modify to use the shape of inner ISO threads.
+// @todo Find a more elegant, scalable way to define a thread type profile.
 base_thread_profile = [
     [0,        0      ],
     [0.19863,  0      ],
@@ -149,6 +149,8 @@ module tangential_circle_hull(r1, r2, angle, wall_t) {
  * @param h  Height of the rectangle in 2D (y dimension).
  * @param chamfers  Width and height of a 45° chamfer. Either a number (applied to all corners), or a list of four numbers, applied 
  *   to the bottom left, bottom right, top right, top left corner, in that order.
+ * 
+ * @todo Remove any two sequential identical points. Because when a certain chamfer is not set, it currently generates three identical points.
  */
 module chamfered_rectangle(w, h, chamfers) {
     chamfers_list = is_num(chamfers) ? [chamfers, chamfers, chamfers, chamfers] : chamfers;
@@ -233,8 +235,8 @@ module circular_grid(segment_counts, h, r, spacer_t) {
  * @brief A single clip of 45° angular width and 0.5 mm height. Specific for the MP-5 respirator.
  * 
  * @todo Make the clip height parametric. The current value applies to the Polish MP-5 respirator, resulting in 
- * 49.7 mm port cover inner diameter (after subtracting clip height), comparing well to the 49.5±0.1 mm for the 
- * original port cover.
+ *   49.7 mm port cover inner diameter (after subtracting clip height), comparing well to the 49.5±0.1 mm for the 
+ *   original port cover.
  */
 module clip() {
     // Points for rotate_extrude() are effectively defined in the (x,z) plane.
@@ -300,7 +302,7 @@ module cone_section() {
 
 /** @brief Threaded section at the bottom of the body part. One of the three main sections of the body part. */
 module thread_section() {
-    // TODO: Outsource the calculation of the thread profile (and the definition of the base profile) into a function.
+    // @todo Outsource the calculation of the thread profile (and the definition of the base profile) into a function.
     thread_core_r = thread_section_inner_r + wall_t;
     thread_profile = [ 
         for (i = base_thread_profile) [i[0] * thread_pitch, i[1] * thread_pitch + thread_core_r] 
@@ -379,7 +381,7 @@ module cap() {
 
 /** @brief Arrange all objects according to the render control parameters. Exclused geometry postprocessing such as cross-sectioning. */
 module scene() {
-    // TODO: Center the part around the origin, as that is most useful for rotating when viewing. It is centered around the z axis already.
+    // @todo Center the part around the origin, as that is most useful for rotating when viewing. It is centered around the z axis already.
     
     if (scene_content == "body only")
         body();
@@ -389,7 +391,7 @@ module scene() {
         // Determine the height of the body relative to the lid.
         unscrew_body_h = 
             (scene_content == "both (cap opened)") ? cap_h + 20 : // Lid fully removed, with a 20 mm gap to the body.
-            // TODO: Complete and enable the following line.
+            // @todo Complete and enable the following line.
             // (scene_content == "both (cap closed one turn)") ? thread_h - thread_turn_h; // Useful to debug the thread gap.
             (scene_content == "both (cap closed)") ? nothing : nothing; // Cap fully screwed on.
     
@@ -403,12 +405,12 @@ module scene() {
 /** @brief Create and show the whole design. */
 module main () {
     if (show_cross_section) {
-        // TODO: Fix the rendering errors of doing intersection() or difference() here.
+        // @todo Fix the rendering errors of doing intersection() or difference() here.
         intersection() {
             scene();
             
             // Big cuboid to remove half of the container for a cross-section view.
-            // TODO: Calculate this based on actual object measures.
+            // @todo Calculate this based on actual object measures.
             color("Gold")
                 translate([-250, 0, -250])
                     cube([500, 500, 500], center = false);
