@@ -37,6 +37,11 @@ create_cross_section = false;
 // How much to offset the strap mount relative to the original clips.
 extension_length = 30;
 
+/* [Hidden] */
+
+// Small amount of overlap for unions and differences, to prevent z-fighting.
+nothing = 0.01;
+
 // (3) REUSABLES
 // ======================================================================
 
@@ -79,6 +84,8 @@ function d(id) = (
     // Stem width is 8.3 mm, and also the original clips have a 8.3 mm opening in mounted 
     // position. But the stem is rubber material and compressible, and we want a tight fit.
     id == "extension slot w2"        ?  8.0 :
+    // To keep enough material in front of the slot, the amount used on the maskmount is a good orientation.
+    id == "extension slot offset d"  ? d("maskmount stem d") :
     id == "extension edge r"         ?  0.7 : // Default edge radius.
     id == "extension min r"          ?  0.3 : // Minimum allowable edge radius.
 
@@ -149,20 +156,53 @@ module strapmount_capture_blocks(extend_triangles = false) {
             length = block_h + sinkin_t, r1 = r, r2 = 0, fn = 8);
 }
 
+/** @brief Cutter element for the slot to go over the maskmount cap when attaching to the mask.
+  *   Positioned ready for use.
+  * @param h  Height of the slot shape.
+  * @param edges  A vector defining how to shape the upper and lower edge, e.g. ["radius", "fillet"].
+  * @todo Include a parameter to allow reducing the outline size for assembly tolerances. And use that.
+  */
+module slot(h, edges) {
+    corner_r = d("maskmount stem corner r"); // Default corner radius. Multiply as needed.
+    edge_r = d("extension edge r"); // Default radius for upper and lower edge.
+    r1_dir = edges[0] == "radius" ? 1 : -1;
+    r2_dir = edges[1] == "radius" ? 1 : -1;
+
+    // Centered around the x axis and then mirrored, since the outline is symmetrical.
+    half_outline = [
+        [0, 0, corner_r],
+        [d("maskmount stem d"), d("extension slot w2") / 2, corner_r],
+        [d("maskmount stem d") + d("maskmount cap d"), d("extension slot w1") / 2, corner_r * 2],
+        [d("maskmount stem d") + d("maskmount cap d") + d("extension slot w1") / 2, 0, d("extension slot w1") / 2]
+    ];
+    outline = mirrorPoints(half_outline, rot = 0, endAttenuation = [1, 1]); // Mirror at x axis.
+
+    translate([d("extension w") / 2, d("extension slot offset d"), 0])
+        // Compensate for the depth lost by applying the radius.
+        // @todo Calculate this properly. Factor 1.19 is determine visually for the MP-5 mask.
+        translate([0, -d("maskmount stem corner r") * 1.19, 0])
+            rotate([0, 0, 90])
+                polyRoundExtrude(outline, length = h, r1 = r1_dir * edge_r, r2 = r2_dir * edge_r, fn = 8);
+}
+
+// @todo Make this part thinner, replacing the thick section with a sloping section.
 module upper_extension_base() {
+    min_h = d("extension h");
+    ramp_h = min_h + d("strapmount ramp h");
+    max_h = d("extension h") + d("strapmount max h");
     r = d("extension edge r");
     ramp_offset_d = d("strapmount offset d") + d("strapmount ramp offset d"); // Now from origin.
 
     // Main outline in the yz plane. A rectangle with a ramped section. Format: [y, z, radius].
     outline_points = [
-        [                                     0,                                         0, r],
-        [                      d("extension d"),                                         0, r],
-        [                      d("extension d"), d("extension h") + d("strapmount ramp h"), r],
-        [ramp_offset_d + d("strapmount ramp d"), d("extension h") + d("strapmount ramp h"), 0],
-        [ramp_offset_d                         , d("extension h")                         , 0],
-        [d("strapmount offset d")              , d("extension h")                         , d("extension min r")],
-        [d("strapmount offset d")              , d("extension h") + d("strapmount max h") , r],
-        [                                     0, d("extension h") + d("strapmount max h") , r]
+        [                                     0,      0,                max_h],
+        [                      d("extension d"),      0,               ramp_h],
+        [                      d("extension d"), ramp_h,                    r],
+        [ramp_offset_d + d("strapmount ramp d"), ramp_h,                    0],
+        [ramp_offset_d                         ,  min_h,                    0],
+        [d("strapmount offset d")              ,  min_h, d("extension min r")],
+        [d("strapmount offset d")              ,  max_h,                    r],
+        [                                     0,  max_h,                    r]
     ];
     // @todo: assert() that the above point sets contain no "undef".
 
@@ -185,12 +225,18 @@ module upper_extension() {
 
             // Block to attach to the hole in the mask's strap mount part.    
             strapmount_capture_blocks(extend_triangles = true);
+
+            // Add a solid version of the slot cutter, to block the slot in the lower part.
+            // It will be cut to size later, so that not everything is being blocked.
+            translate([0, 0, d("extension h") + d("strapmount max h")])
+                slot(h = d("extension h") + 2 * nothing, edges = ["radius", "fillet"]);
         }
 
-    // @todo Design the part to block the slot for the mask mountpoint in the lower extension.
-    // @todo Design the part to capture the cap of the mask mountpoint.
+    // Subtract a part to capture the cap of the mask mountpoint and to shape the slot blocker.
+    // @todo Create this part from a maskmount cap in cylindrical form.
 
-    // @todo Cut places to mount two cable ties.
+
+    // @todo Cut places to mount one cable tie.
 }
 
 module lower_extension_base() {
@@ -231,9 +277,11 @@ module lower_extension() {
                 strapmount_capture_blocks();
             }
 
-            // @todo Cut the slot for the mask mountpoint.
+            // Cut the slot for the mask mountpoint.
+            translate([0, 0, -nothing])
+                slot(h = d("extension h") + 2 * nothing, edges = ["fillet", "fillet"]);
 
-            // @todo Cut places to mount two cable ties.
+            // @todo Cut places to mount one cable tie.
         }
 }
 
