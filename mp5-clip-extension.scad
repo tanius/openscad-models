@@ -13,9 +13,12 @@
   *   strap mountpoint in the back, both attached to a flat table. The "natural orientation" in use 
   *   is not relevant, as we don't draw the part in use.
   * 
-  * @todo Integrate gaps to adjust for manufacturing tolerances.
+  * @todo Add a cutout for the head of the cable tie.
   * @todo Use three additional cutters to cut the large-radius overhangs for printability, preserving 
   *   the circle radius where it is less than 45° against vertical.
+  * @todo Make the fn parameter to all polyRoundExtrude() calls depend on the chosen quality setting.
+  *   Currently, fn = 8 is used in all calls, resulting in 8 segments each for the rounded edges 
+  *   at the top and bottom. It does not affect the rendering of the rounded polygon supplied to it.
   */
 
 // Up here to appear before any assert() and echo() in the parameters section.
@@ -39,8 +42,8 @@ show = "both (apart)"; // ["upper", "lower", "both (apart)", "both (together)"]
 
 create_cross_section = false;
 
-// How much to offset the strap mount relative to the original clips.
-extension_length = 30;
+// How much to offset the strap mount relative to the original position. For comparison, the rubber band of the middle headstraps on the MP-5 respirator sizes 1-2 can be extended by about 90 mm per side at the most. 
+extension_length = 35;
 
 
 // (3) DERIVED PARAMETERS
@@ -54,9 +57,17 @@ nothing = 0.01;
 
 /** @brief Provide any measure (that we know of) about any part of this design. This acts as a 
   *   central registry for measures to not clutter the global namespace. "d" for "dimension".
-  * @param id  
+  *   Most numbers can be adjusted, allowing customization beyond the rather simple parameters in 
+  *   the OpenSCAD Customizer.
+  * @param id  String identifier of the dimension to retrieve. Look into the source to see 
+  *   which are available.
   */
 function d(id) = (
+    // Gap around any inserted part, to account for manufacturing and measuring tolerances.
+    // @todo Instead of defining them in absolute terms, define a percentage. Then fix the current 
+    //   usage, as currently multiples of this measure are used where needed.
+    id == "gap"                       ? 0.15 :
+
     id == "maskmount stem w"          ? 8.3 :
     id == "maskmount stem d"          ? 7.8 :
     // Width of the triangle so "stem w" remains after cutting off corners using the "stem corner r".
@@ -99,7 +110,12 @@ function d(id) = (
 
     id == "extension w"               ? d("strapmount w") :
     id == "extension h"               ? d("maskmount stem h") :
-    id == "extension d"               ? extension_length + 20 : // @todo
+    // Total y dimension of the extension parts.
+    //   In the original condition, the strapmount part were measured to start 11 mm behind the mask 
+    //   mount stem part. So the total depth is composed of the distance to the mask mount stem part 
+    //   (going through the slot), these 11 mm original strapmount offset, the intended additional 
+    //   strapmount offset ("extension length"), and the section covering the strapmount parts.
+    id == "extension d"               ? d("extension slot offset d") + 11 + extension_length + d("strapmount d") :
     // The slot is narrower than the mask mountpoint's cap, as it is mounted by hooking in one side 
     // and then pushing the other down.
     id == "extension slot w1"         ? 9.5 :
@@ -110,7 +126,14 @@ function d(id) = (
     id == "extension slot offset d"   ? d("maskmount stem d") :
     id == "extension edge r"          ? 0.7 : // Default edge radius.
     id == "extension min r"           ? 0.3 : // Minimum allowable edge radius.
-    id == "extension cabletie d"      ? 4.8 : // Minimum allowable edge radius.
+
+    // @todo Rename all cabletie parameters to omit "extension".
+    id == "extension cabletie cut d"  ? 5.0 : // Because 4.8 mm is a widespread cable tie width.
+    // Default cut depth of the cable tie channel.
+    id == "extension cabletie cut t"  ? 1.5 :
+    // Cabletie bend radius, measured on the inside. A practical parametric default is provided.
+    id == "extension cabletie bend r" ? d("extension cabletie cut d") / 2 - d("extension cabletie cut t") :
+    id == "extension cabletie mount d" ? d("strapmount offset d") - 2 * d("extension cabletie cut d") :
 
     undef
 );
@@ -147,19 +170,21 @@ function radius_cutoff(angle, r) = (
   *   it is already positioned for mounting in *_extension_base().
   */
 module strapmount_capture_blocks(extend_triangles = false) {
+    hole_w = d("strapmount hole w") - 2 * d("gap");
+    hole_d = d("strapmount hole d") - 2 * d("gap");
     sinkin_t = d("extension edge r"); // Measure to overcome the base shape edge radius.
     block_h = d("strapmount max h") / 2; // Block height above the extension base shape.
     r = d("extension min r"); // Default edge radius here.
 
-    // @todo Subtract assembly tolerances from the hole block.
     hole_block = [
-        [                     0,                      0,          r],
-        [d("strapmount hole w"),                      0,          r],
-        [d("strapmount hole w"), d("strapmount hole d"), d("strapmount hole corner r")],
-        [                     0, d("strapmount hole d"), d("strapmount hole corner r")],
+        [     0,      0,                             r],
+        [hole_w,      0,                             r],
+        [hole_w, hole_d, d("strapmount hole corner r")],
+        [     0, hole_d, d("strapmount hole corner r")],
     ];
 
-    // @todo Subtract assembly tolerances from the triangle blocks.
+    // No d("gap") is removed from the inner edges of the triangle blocks, as an insert only needs 
+    // one gap size as tolerance, here already provided around hole_block above.
     left_triangle = [
         [d("strapmount triangle w"),                          0, r],
         [                         0, d("strapmount triangle d"), r],
@@ -185,8 +210,8 @@ module strapmount_capture_blocks(extend_triangles = false) {
 
     // Central hole capture block.
     translate([
-        (d("strapmount w") - d("strapmount hole w")) / 2, 
-        d("strapmount offset d") + d("strapmount hole offset d"), 
+        (d("strapmount w") - hole_w) / 2,
+        d("strapmount offset d") + d("strapmount hole offset d") + d("gap"),
         d("extension h")
     ])
         polyRoundExtrude(hole_block, length = block_h, r1 = r, r2 = -r, fn = 8);
@@ -205,42 +230,54 @@ module strapmount_capture_blocks(extend_triangles = false) {
 /** @brief Cutter element for the slot to go over the maskmount cap when attaching to the mask.
   *   Positioned ready for use.
   * @param h  Height of the slot shape.
-  * @param edges  A vector defining how to shape the upper and lower edge, e.g. ["radius", "fillet"].
-  * @todo Include a parameter to allow reducing the outline size for assembly tolerances. And use that.
+  * @param shrink  Reduce all xy measures to keep this gap around the part, for easy inserting into a 
+  *   slot created with shrink = 0.
+  * @param edges  A vector defining how to shape the upper and lower edge. Available values for 
+  *   each edge are "original", "radius" and "fillet". Example: ["radius", "fillet"].
   */
-module slot(h, edges) {
+module slot(h, shrink = 0, edges) {
     corner_r = d("maskmount stem corner r"); // Default corner radius. Multiply as needed.
-    edge_r = d("extension edge r"); // Default radius for upper and lower edge.
     r1_dir = edges[0] == "radius" ? 1 : -1;
     r2_dir = edges[1] == "radius" ? 1 : -1;
+    r1 = edges[0] == "original" ? 0 : d("extension edge r");
+    r2 = edges[1] == "original" ? 0 : d("extension edge r");
+    min_d = d("maskmount stem d") + d("maskmount cap d");
 
     // Centered around the x axis and then mirrored, since the outline is symmetrical.
     // @todo Use d("maskmount stem triangle d") in this outline instead of d("maskmount stem d").
     half_outline = [
-        [0, 0, corner_r],
-        [d("maskmount stem d"), d("extension slot w2") / 2, corner_r],
-        [d("maskmount stem d") + d("maskmount cap d"), d("extension slot w1") / 2, corner_r * 2],
-        [d("maskmount stem d") + d("maskmount cap d") + d("extension slot w1") / 2, 0, d("extension slot w1") / 2]
+        [shrink, 0, corner_r],
+        [d("maskmount stem d"), d("extension slot w2") / 2 - shrink, corner_r],
+        [min_d - shrink, d("extension slot w1") / 2 - shrink, corner_r * 2],
+        [min_d + d("extension slot w1") / 2 - shrink, 0, d("extension slot w1") / 2]
     ];
     outline = mirrorPoints(half_outline, rot = 0, endAttenuation = [1, 1]); // Mirror at x axis.
 
     translate([d("extension w") / 2, d("extension slot offset d"), 0])
-        // Compensate for the depth lost by applying the radius.
-        // @todo Calculate this properly. Factor 1.19 is determine visually for the MP-5 mask.
-        translate([0, -d("maskmount stem corner r") * 1.19, 0])
+        // y movement: "-d("maskmount stem corner r") * 1.19" to compensate for the depth lost by 
+        // applying the radius. "shrink" to center the part within the available gap space.
+        // @todo Calculate the depth loss properly. Factor 1.19 is determine visually for the MP-5 
+        //   mask. The required function is available as radius_cutoff() above.
+        translate([0, shrink - d("maskmount stem corner r") * 1.19, 0])
             rotate([0, 0, 90])
-                polyRoundExtrude(outline, length = h, r1 = r1_dir * edge_r, r2 = r2_dir * edge_r, fn = 8);
+                polyRoundExtrude(outline, length = h, r1 = r1_dir * r1, r2 = r2_dir * r2, fn = 8);
 }
 
-module maskmount_cap(h = d("maskmount cap h"), orient = "top") {
+/** @brief Top part of the MP-5 respirator clip mount on the mask itself.
+  * @param h  Height of the part. Defaults to the natural height of the cap, but can be increased 
+  *   to create a cutter.
+  * @param orient  Where to point the top of the cap. "top" or "bottom".
+  * @param grow  How much to grow the xy outline of the cap, from the center into all directions.
+  */
+module maskmount_cap(h = d("maskmount cap h"), orient = "top", grow = 0) {
     cap_corner_r = d("maskmount cap corner r");
 
     // Simplified compared to reality, as we do not model the arc at the back of the cap, 
     // instead creating a triangle with rounded corners that is large enough for the cap to fit in.
     cap_outline = [
-        [                                 0,                             0, cap_corner_r],
-        [ d("maskmount cap triangle w") / 2, d("maskmount cap triangle d"), cap_corner_r],
-        [-d("maskmount cap triangle w") / 2, d("maskmount cap triangle d"), cap_corner_r]
+        [                                        0,                                        0, cap_corner_r],
+        [ d("maskmount cap triangle w") / 2 + grow, d("maskmount cap triangle d") + 2 * grow, cap_corner_r],
+        [-d("maskmount cap triangle w") / 2 - grow, d("maskmount cap triangle d") + 2 * grow, cap_corner_r]
     ];
 
     // Cap size control shape, to determine the maskmount stem triangle w / d parameters visually.
@@ -251,7 +288,7 @@ module maskmount_cap(h = d("maskmount cap h"), orient = "top") {
     // Cap.
     r1 = orient == "top" ? d("maskmount cap edge r") : 0;
     r2 = orient == "top" ? 0 : d("maskmount cap edge r");
-    translate([d("extension w") / 2, -(d("maskmount cap triangle d") - d("maskmount cap d")) + d("extension slot offset d"), 0])
+    translate([d("extension w") / 2, -(d("maskmount cap triangle d") - d("maskmount cap d")) + d("extension slot offset d") - grow, 0])
         polyRoundExtrude(cap_outline, length = h, r1 = r1, r2 = r2, fn = 8);
 }
 
@@ -278,7 +315,41 @@ module maskmount_stem(h = d("maskmount stem h")) {
         polyRoundExtrude(stem_outline, length = h, r1 = 0, r2 = 0, fn = 8);
 }
 
-// @todo Make this part thinner, replacing the thick section with a sloping section.
+/** @brief U-shaped cutter for a cable tie channel.
+  * @param d_offset  y axis position of the start of the cable tie channel. Defaults to 0.
+  * @cut_dw  Channel cut depth in the x direction.
+  * @cut_dh  Channel cut depth in the z direction.
+  */
+module cabletie_cutter(d_offset = 0, cut_dw = d("extension cabletie cut t"), cut_dh = d("extension cabletie cut t")) {
+    // "extension cabletie cut d"
+    // "extension cabletie cut t"
+    edge_r = d("extension min r");
+    bend_r = d("extension cabletie bend r");
+    cut_w = d("extension w") + 2 * nothing;
+    cut_d = d("extension cabletie cut d");
+    cutter_h = d("extension w"); // Larger than needed, just to be generous.
+
+    // Point, as offset from the previous.   // Point with added radius component.
+    p1 =      [-nothing, -nothing];          p1r = concat(p1, 0);
+    p2 = p1 + [cut_w, 0];                    p2r = concat(p2, 0);
+    p3 = p2 + [0, cutter_h + nothing];       p3r = concat(p3, 0);
+    p4 = p3 + [-cut_dw, 0, 0];               p4r = concat(p4, 0);
+    p5 = p4 + [0, -cutter_h + cut_dh];       p5r = concat(p5, bend_r);
+    p6 = p5 + [-(cut_w - 2 * cut_dw), 0];    p6r = concat(p6, bend_r);
+    p7 = p6 + [0, -cut_dh + cutter_h];       p7r = concat(p7, 0);
+    p8 = p7 + [-cut_dw, 0];                  p8r = concat(p8, 0);
+
+    outline = [p1r, p2r, p3r, p4r, p5r, p6r, p7r, p8r];
+
+    translate([0, cut_d + d_offset, 0])
+        rotate([90, 0, 0])
+            // @todo To improve the cut-out shape, add radii (r1 = edge_r, r2 = edge_r). However, 
+            //   as that also sets the outer radii, the cutter thickness has to be increased beyond 
+            //   what is sunk in for cutting, to not cut a shape that is widening at the bottom of 
+            //   the cut.
+            polyRoundExtrude(outline, length = cut_d, r1 = 0, r2 = 0, fn = 8);
+}
+
 module upper_extension_base() {
     min_h = d("extension h");
     ramp_h = min_h + d("strapmount ramp h");
@@ -321,19 +392,26 @@ module upper_extension() {
                 // Block to attach to the hole in the mask's strap mount part.    
                 strapmount_capture_blocks(extend_triangles = true);
 
-                // Add a solid version of the slot cutter, to block the slot in the lower part.
+                // Add a solid block shaped to block the slot in the lower part.
                 // It will be cut to size later, so that not everything is being blocked.
+                // @todo  It would be nice to use a fillet at the lower edge. slot() can provide 
+                //  that, but a tiny part of this at the front tip of the slot would not be removed 
+                //  with the maskmount_cap() cutter later. So for now, no fillet.
                 translate([0, 0, d("extension h") + d("strapmount max h") - nothing])
-                    slot(h = d("extension h") + nothing, edges = ["radius", "fillet"]);
+                    slot(h = d("extension h") + nothing, shrink = d("gap"), edges = ["radius", "original"]);
             }
 
             // Subtract a part to capture the cap of the mask mountpoint and to shape the slot blocker.
-            maskmount_cap_h = d("maskmount cap h") + d("extension h") + nothing;
+            cap_gap_d = d("gap") * 2; // z direction gap to account for tolerances.
+            maskmount_cap_h = d("maskmount cap h") + d("extension h") + cap_gap_d + nothing;
             maskmount_cap_offset_h = d("extension h") + d("strapmount max h") + d("extension h") - maskmount_cap_h + 2 * nothing;
             translate([0, 0, maskmount_cap_offset_h])
-                maskmount_cap(h = maskmount_cap_h, orient = "bottom");
+                maskmount_cap(h = maskmount_cap_h, orient = "bottom", grow = d("gap") * 3);
 
-            // @todo Cut places to mount one cable tie.
+            // Cut the cable tie mount.
+            // @todo The current cut_dh calculation is simplistic. It will not be able to compensate 
+            //   for the sloped surface in all cases. Should be improved by taking into account the surface angle.
+            cabletie_cutter(d_offset = d("extension cabletie mount d"), cut_dh = d("extension cabletie cut t") * 1.5);
         }
 }
 
@@ -379,7 +457,9 @@ module lower_extension() {
             translate([0, 0, -nothing])
                 slot(h = d("extension h") + 2 * nothing, edges = ["fillet", "fillet"]);
 
-            // @todo Cut places to mount one cable tie.
+            // Cut the cable tie mount. Since the lower extension is thin, we only remove material 
+            // from the sides to not weaken the material.
+            cabletie_cutter(d_offset = d("extension cabletie mount d"), cut_dh = 0);
         }
 }
 
