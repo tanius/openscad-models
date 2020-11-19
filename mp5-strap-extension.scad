@@ -12,7 +12,7 @@
   * @detail All dimensions are named as if the part connects a mask mountpoint in the front to a 
   *   strap mountpoint in the back, both attached to a flat table. The "natural orientation" in use 
   *   is not relevant, as we don't draw the part in use.
-  * 
+  *
   * @todo Add a cutout for the head of the cable tie.
   * @todo Use three additional cutters to cut the large-radius overhangs for printability, preserving 
   *   the circle radius where it is less than 45° against vertical.
@@ -88,6 +88,7 @@ function d(id) = (
     // Width of the triangle so "cap d" remains after cutting off corners using the "stem corner r".
     // Determined visually, see above how to handle this.
     id == "maskmount cap triangle d"  ? d("maskmount cap d") * 1.260 :
+    id == "maskmount cap overhang d"  ? (d("maskmount cap d") - d("maskmount stem d")) / 2 :
     id == "maskmount cap corner r"    ? 3.0 : // Difficult to measure, but also not relevant for the design.
     id == "maskmount cap h"           ? 3.0 :
     id == "maskmount cap undercut h"  ? 0.7 : // Overhanging section of the cap. Unused.
@@ -133,7 +134,9 @@ function d(id) = (
     id == "extension cabletie cut t"  ? 1.5 :
     // Cabletie bend radius, measured on the inside. A practical parametric default is provided.
     id == "extension cabletie bend r" ? d("extension cabletie cut d") / 2 - d("extension cabletie cut t") :
-    id == "extension cabletie mount d" ? d("strapmount offset d") - 2 * d("extension cabletie cut d") :
+    // @todo Calculate a better cable tie mountpoint, namely in the center between the end of the 
+    //   slot in the lower extension and the beginning of the strapmount enclosure.
+    id == "extension cabletie mount d" ? d("strapmount offset d") - 3 * d("extension cabletie cut d") :
 
     undef
 );
@@ -288,7 +291,12 @@ module maskmount_cap(h = d("maskmount cap h"), orient = "top", grow = 0) {
     // Cap.
     r1 = orient == "top" ? d("maskmount cap edge r") : 0;
     r2 = orient == "top" ? 0 : d("maskmount cap edge r");
-    translate([d("extension w") / 2, -(d("maskmount cap triangle d") - d("maskmount cap d")) + d("extension slot offset d") - grow, 0])
+    translate([
+        d("extension w") / 2, 
+        -(d("maskmount cap triangle d") - d("maskmount cap d")) 
+            + d("extension slot offset d") - d("maskmount cap overhang d") - grow, 
+        0
+    ])
         polyRoundExtrude(cap_outline, length = h, r1 = r1, r2 = r2, fn = 8);
 }
 
@@ -357,9 +365,12 @@ module upper_extension_base() {
     r = d("extension edge r");
     ramp_offset_d = d("strapmount offset d") + d("strapmount ramp offset d"); // Now from origin.
 
-    // Main outline in the yz plane. A rectangle with a ramped section. Format: [y, z, radius].
+    // Main outline in the yz plane. Format: [y, z, radius].
+    // @todo (max_h - min_h) * 0.8 is a visually determined value to keep enough material above 
+    //   the maskmount cap cutout. Calculate this more precisely as a minimum thickness of material 
+    //   depending on the cap cutout depth. And use the d("…") for this parameter.
     outline_points = [
-        [                                     0, max_h - min_h,                min_h],
+        [                                     0, (max_h - min_h) * 0.8,                min_h],
         [d("strapmount offset d") - min_h      ,             0,                    r],
         [                      d("extension d"),             0,               ramp_h],
         [                      d("extension d"),        ramp_h,                    r],
@@ -409,8 +420,10 @@ module upper_extension() {
                 maskmount_cap(h = maskmount_cap_h, orient = "bottom", grow = d("gap") * 3);
 
             // Cut the cable tie mount.
-            // @todo The current cut_dh calculation is simplistic. It will not be able to compensate 
-            //   for the sloped surface in all cases. Should be improved by taking into account the surface angle.
+            // @todo The current cut_dh calculation is wrong and only visually correct for the 
+            //   current measures. It always cuts from the maximum part height, not from the 
+            //   actual z height of the part's sloped surface at the position of the cabletie 
+            //   cutter.
             cabletie_cutter(d_offset = d("extension cabletie mount d"), cut_dh = d("extension cabletie cut t") * 1.5);
         }
 }
