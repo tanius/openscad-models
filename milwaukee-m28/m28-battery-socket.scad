@@ -45,6 +45,9 @@ function m(id) = (
     id == "corner radius w" ? 6.5 :
     id == "corner radius d" ? 9.2 :
     id == "outer edges r" ? 0.7 :
+    id == "backwall d min" ? 2.0 :
+    id == "backwall d max" ? 3.9 :
+    id == "backwall d" ? (m("backwall d min") + m("backwall d max")) / 2 :
     
     // Middle section, which is a separate part of the original Milwaukee battery socket.
     id == "middle section h" ? 12.8 :
@@ -52,8 +55,6 @@ function m(id) = (
     id == "middle section offset w" ? (m("w") - m("middle section w")) / 2 :
     id == "middle section undercut h" ? 3.3 :
     id == "middle section undercut d" ? 12.6 :
-    id == "middle section backwall d min" ? 2.0 :
-    id == "middle section backwall d max" ? 3.9 :
     id == "middle section edge r" ? 0.5 :
     
     // Raised block on top of the middle section part, forming the highest point of the battery socket.
@@ -74,6 +75,7 @@ function m(id) = (
     id == "lock grooves min d" ? 
         m("lock block back offset d") + m("battery play d") + m("battery snapper wide part total d") :
     id == "lock grooves offset w" ? 3.3 :
+    id == "lock grooves offset h" ? m("side h") - m("lock grooves h") :
     
     // Snap mechanism inside the snapper grooves.
     id == "lock block w" ? 2.6 :
@@ -114,31 +116,41 @@ function equals(n1, n2) = (
 );
 
 
-/** Convert a path of point deltas with radius into a list of points. For each point delta, the x resp. y component of the 
-  * point is the sum of the delta_x resp. delta_y components of all preceding point deltas, and the radius component is unchanged.
-  * @param deltas  Vector of point deltas, each delta having a format of [delta_x, delta_y, radius], where delta_x / delta_y is 
-  *   the difference from the previous point in x resp. y direction and radius is the radius to create at that point in the path.
-  * @param last_index  An index into deltas pointing to the last element to process. Optional, defaults to the maximum possible index.
+/** @brief Convert a path into a list of points.
+  * @detail A path is a vector starting with a point as first elements and having series of movements as the following elements. 
+  *   Each movement is an element [dx, dy, radius] of two deltas relative to the previous path element and a corner radius at 
+  *   the target point of the movement. Paths can be interpreted as open paths or (by assuming a last implicit movement back to 
+  *   the starting point) as closed paths / polygons. When interpreted as open paths, the corner radius of the starting point 
+  *   has no meaning.
+  *   When converting a path into a list of points, for each path element the x resp. y component of the point is the sum of 
+  *   the delta_x resp. delta_y components of all preceding points, and the radius component is taken over unchanged.
+  * @param path  A path. This is a vector starting with a point as first elements and having series of movements as the 
+  *   following elements. Each movement is an element [dx, dy, radius] of two deltas relative to the previous path element 
+  *   and a corner radius at the target point of the movement. Paths can be interpreted as open paths or (by assuming a 
+  *   last implicit movement back to the starting point) as closed paths / polygons. When interpreted as open paths, the 
+  *   corner radius of the starting point has no meaning.
+  * @param last_index  An index into the path, pointing to the last element to process. Usually left out, in which case it 
+  *   defaults to the highest possible index.
   * @todo Contribute this function to the Round Anything library.
   */
-function to_points(deltas, last_index) = let(
-    i = last_index == undef ? len(deltas) - 1 : last_index
-) (
-    i == 0 ?
-        [deltas[0]] :
+function to_points(path, last_index) = (
+    // Recursion end case.
+    let(i = last_index == undef ? len(path) - 1 : last_index)
+    i == 0 ? [path[0]] :
         
-        let(
-            prev_points = to_points(deltas, i - 1),
-            prev_point = prev_points[i - 1]
-        )
-        concat(
-            prev_points,
-            [[ // List of points with a single point inside.
-                prev_point.x + deltas[i].x, 
-                prev_point.y + deltas[i].y, 
-                deltas[i][2]
-            ]]
-        )
+    // Recursion case.
+    let(
+        prev_points = to_points(path, i - 1),
+        prev_point = prev_points[i - 1]
+    )
+    concat(
+        prev_points,
+        [[ // A list of points with a single point inside.
+            prev_point.x + path[i].x, 
+            prev_point.y + path[i].y, 
+            path[i][2]
+        ]]
+    )
 );
 
 assert(to_points([[1,1,1], [2,2,2], [3,3,3]], 0) == [[1, 1, 1]], "to_points() failed test 1");
@@ -150,55 +162,72 @@ assert(to_points([[1,1,1], [2,2,2], [3,3,3]]   ) == [[1, 1, 1], [3, 3, 2], [6, 6
 // (5) PARTS
 // ======================================================================
 
-/** @todo Modify the implementation to create the left half incl. half of the middle section, then use 
-  *   mirrorPoints().
-  */
+/** Base shape of the battery socket, in its final position. */
 module battery_socket_base() {
-    // Points path, each point an offset from the preceding one. Format [x_offset, y_offset, corner_radius].
-    left_deltas = [
-        [m("mount grooves w"), 0, 0],
-        [m("mount grooves wall t") + m("terminal grooves w"), 0, 0],
-        [0, m("side h") - m("lock grooves h"), 0],
-        [- m("lock grooves w"), 0, 0],
-        [0, m("lock grooves h"), 0],
-        [- m("lock grooves offset w"), 0, m("outer edges r")],
-        [0, -(m("side h") - m("mount grooves h")), 0],
-        [m("mount grooves w"), 0, 0]
+    // Left half outline path, as a starting point and relative movements [delta_x, delta_y, corner_radius].
+    left_path = [ // Start point is the right top corner. Path follows CCW.
+        [m("w") / 2,                              m("middle section h"),                               0                         ],
+        [-m("middle section w") / 2,              0,                                                   m("middle section edge r")],
+        [0,                                       -m("middle section h") + m("lock grooves offset h"), 0                         ],
+        [- m("lock grooves w"),                   0,                                                   0                         ],
+        [0,                                       m("lock grooves h"),                                 0                         ],
+        [- m("lock grooves offset w"),            0,                                                   m("outer edges r")        ],
+        [0,                                       -(m("side h") - m("mount grooves h")),               0                         ],
+        [m("mount grooves w"),                    0,                                                   0                         ],
+        [0,                                       -m("mount grooves h"),                               0                         ],
+        [(m("w") - 2 * m("mount grooves w")) / 2, 0,                                                   0                         ]
     ];
-    left_outline = to_points(left_deltas);
     
-    middle_deltas = [
-        [0, 0, 0],
-        [m("middle section w"), 0, 0],
-        [0, m("middle section h"), m("middle section edge r")],
-        [-m("middle section w"), 0, m("middle section edge r")]
-    ];
-    middle_outline = to_points(middle_deltas);
-
     translate([0, m("d"), 0])
         rotate([90, 0, 0]) {
-            // Left section.
-            polyRoundExtrude(left_outline, length = m("d"), r1 = 0, r2 = 0, fn = 8);
+            // Left half.
+            linear_extrude(height = m("d")) 
+                polygon(polyRound(to_points(left_path), fn = 8));
             
-            // Middle section.
-            translate([m("middle section offset w"), 0, 0])
-                polyRoundExtrude(middle_outline, length = m("d"), r1 = 0, r2 = 0, fn = 8);
-            
-            // Right section.
+            // Right half, as a mirrored left half.
             translate([m("w"), 0, 0])
-                mirror([1, 0, 0]) 
-                    polyRoundExtrude(left_outline, length = m("d"), r1 = 0, r2 = 0, fn = 8);
+                mirror([1, 0, 0])
+                    linear_extrude(height = m("d")) 
+                        polygon(polyRound(to_points(left_path), fn = 8));
         }
 }
 
+/** Back wall of the battery socket, in its final position. */
+module backwall() {
+    // Backwall outline path, as a starting point and relative movements [delta_x, delta_y, corner_radius].
+    path = [
+        [m("mount grooves w"), 0, 0],
+        [m("w") - 2 * m("mount grooves w"), 0, 0],
+        [0, m("mount grooves h"), 0],
+        [m("mount grooves w"), 0, 0],
+        [0, m("side h") - m("mount grooves h"), m("outer edges r")],
+        [-m("w"), 0, m("outer edges r")],
+        [0, -(m("side h") - m("mount grooves h")), 0],
+        [m("mount grooves w"), 0, 0]
+    ];
+    
+    translate([0, m("d"), 0])
+        rotate([90, 0, 0])
+            linear_extrude(height = m("backwall d")) 
+                polygon(polyRound(to_points(path), fn = 8));
+            // The following is equivalent and more readable but preview is (2.68 s - 2.07 s) / 2.07 s = 29% slower 
+            // (and the cache cannot help as the vector math is slow, before resulting in any cacheable geometry):
+            // polyRoundExtrude(to_points(path), length = m("backwall d"), r1 = 0, r2 = 0, fn = 8); 
+}
+
+/** Ridge block at the top of the battery socket, in its final position. */
+module ridge() {
+    
+}
 
 module battery_socket() {
     battery_socket_base();
     
-    // @todo Add the back wall.
+    backwall();
+    ridge();
+    
     // @todo Add blocks to fill the unused back part of the lock grooves.
     // @todo Add the lock mechanism blocks.
-    // @todo Add the ridge block.
     // @todo Cut the terminal grooves.
     // @todo Cut the middle section undercut.
     // @todo Cut off the corner roundings at the front and back face.
