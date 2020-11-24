@@ -229,17 +229,19 @@ module asymmetrical_fillet(w, d, h) {
 /** Base shape of the battery socket, in its final position. */
 module battery_socket_base() {
     // Left half outline path, as a starting point and relative movements [delta_x, delta_y, corner_radius].
+    // The left path is by "nothing" wider than half the complete shape. This leads to overlap when combining the two halves, 
+    // which is necessary here to prevent an additional volume in the final rendering.
     left_path = [ // Start point is the right top corner. Path follows CCW.
-        [m("w") / 2,                              m("middle section h"),                               0                         ],
-        [-m("middle section w") / 2,              0,                                                   m("middle section edge r")],
-        [0,                                       -m("middle section h") + m("lock grooves offset h"), 0                         ],
-        [- m("lock grooves w"),                   0,                                                   0                         ],
-        [0,                                       m("lock grooves h"),                                 0                         ],
-        [- m("lock grooves offset w"),            0,                                                   m("outer edges r")        ],
-        [0,                                       -(m("side h") - m("mount grooves h")),               0                         ],
-        [m("mount grooves w"),                    0,                                                   0                         ],
-        [0,                                       -m("mount grooves h"),                               0                         ],
-        [(m("w") - 2 * m("mount grooves w")) / 2, 0,                                                   0                         ]
+        [m("w") / 2 + nothing, m("middle section h"), 0],
+        [-m("middle section w") / 2 - nothing, 0, m("middle section edge r")],
+        [0, -m("middle section h") + m("lock grooves offset h"), 0],
+        [- m("lock grooves w"), 0, 0 ],
+        [0, m("lock grooves h"), 0],
+        [- m("lock grooves offset w"), 0, m("outer edges r")],
+        [0, -(m("side h") - m("mount grooves h")), 0],
+        [m("mount grooves w"), 0, 0],
+        [0, -m("mount grooves h"), 0],
+        [(m("w") - 2 * m("mount grooves w")) / 2 + nothing, 0, 0]
     ];
     
     translate([0, m("d"), 0])
@@ -290,7 +292,7 @@ module ridge() {
         [-m("ridge w"), 0, m("ridge h edges r")]
     ];
     
-    translate([m("ridge offset w"), m("ridge offset d"), m("middle section h")])
+    translate([m("ridge offset w"), m("ridge offset d"), m("middle section h") - nothing])
         linear_extrude(height = m("ridge h"))
             // fn is the number of fragments for a radius. Divided by 4 as a corner is 1/4 circle. By 2 as these are small radii.
             rounded_polygon(path, fn = 360 / $fa / 4 / 2);
