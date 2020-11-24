@@ -2,7 +2,7 @@
 
 # 1. Overview
 
-This is an OpenSCAD library of 3D printable parts and accessories for the Milwaukee M28 system of battery powertools. It is also compatible with the Milwaukee V28 system of battery powertools (which is an earlier generation but mechanically compatible) and the Würth 28 V system of battery powertools, which is a whitelabeled version of the Milwaukee M28 system.
+This is an [OpenSCAD](https://www.openscad.org/) library of 3D printable parts and accessories for the Milwaukee M28 system of battery powertools. It is also compatible with the Milwaukee V28 system of battery powertools (which is an earlier generation but mechanically compatible) and the Würth 28 V system of battery powertools, which is a whitelabeled version of the Milwaukee M28 system.
 
 I started this because I needed parts and modifications to use these powertools in a mobile 24 V DC based workshop in an expedition truck. And there was basically nothing available for this system [on Thingiverse](https://www.thingiverse.com/search?q=Milwaukee+M28&type=things&sort=relevant) or anywhere else online, unlike for most other powertool systems. For example, there are 99 designs available [on Thingiverse](https://www.thingiverse.com/search?q=Milwaukee+M18&type=things&sort=relevant&page=4) for the Milwaukee M18 powertool system.
 
