@@ -1,6 +1,8 @@
 /** @brief Device-side connector for Milwaukee M28 and V28 powertool batteries.
+  * @details This is exactly the geometry used for the connector on Milwaukee M28 powertools, with the only difference 
+  *   that this has a socket only on one side and consists of one single part, not three.
   *
-  * @todo Add a customizer parameter to generate the battery socket without the block for the terminals. Allows to 
+    * @todo Add a customizer parameter to generate the battery socket without the block for the terminals. Allows to 
   *   create blind sockets, such as to secure battery packs for transportation, or to mount them in storage.
   * @todo Add a customizer parameter to choose between creating a solid plastic piece (for a blind plate or similar) 
   *   and one with hollows for terminal clips and wires.
@@ -37,10 +39,16 @@ $fa = (quality == "final rendering") ? 1 :
       (quality == "fast preview") ? 12 : 12; // The OpenSCAD default.
       
 // Minimum size of circle fragments.
-$fs= (quality == "final rendering") ? 0.1 :
-     (quality == "rendering") ? 0.25 : 
-     (quality == "preview") ? 0.5 :
-     (quality == "fast preview") ? 2 : 2; // The OpenSCAD default.
+$fs = (quality == "final rendering") ? 0.1 :
+      (quality == "rendering") ? 0.25 : 
+      (quality == "preview") ? 0.5 :
+      (quality == "fast preview") ? 2 : 2; // The OpenSCAD default.
+     
+// Fragment count in a radius or fillet element. Simply assumes that an average radius or fillet is 90°.
+$fr = 360 / $fa / 4;
+
+// Fragment count in a small (≤2 mm) radius or fillet element. Simply assumes that an average radius or fillet is 90°.
+$frs = $fr / 2;
 
 // Small amount of overlap for unions and differences, to prevent z-fighting.
 nothing = 0.01;
@@ -176,8 +184,9 @@ function equals(n1, n2) = (
   * @todo Contribute this function to the Round Anything library.
   */
 function abs_path(path, last_index) = (
-    // Recursion end case.
     let(i = last_index == undef ? len(path) - 1 : last_index)
+    
+    // Recursion end case.
     i == 0 ? [path[0]] :
         
     // Recursion case.
@@ -194,8 +203,8 @@ function abs_path(path, last_index) = (
         ]]
     )
 );
-assert(abs_path([[1,1,1], [2,2,2], [3,3,3]], 0) == [[1, 1, 1]], "abs_path() failed test 1");
-assert(abs_path([[1,1,1], [2,2,2], [3,3,3]], 1) == [[1, 1, 1], [3, 3, 2]], "abs_path() failed test 2");
+assert(abs_path([[1,1,1], [2,2,2], [3,3,3]], 0) == [[1, 1, 1]],                       "abs_path() failed test 1");
+assert(abs_path([[1,1,1], [2,2,2], [3,3,3]], 1) == [[1, 1, 1], [3, 3, 2]],            "abs_path() failed test 2");
 assert(abs_path([[1,1,1], [2,2,2], [3,3,3]], 2) == [[1, 1, 1], [3, 3, 2], [6, 6, 3]], "abs_path() failed test 3");
 assert(abs_path([[1,1,1], [2,2,2], [3,3,3]]   ) == [[1, 1, 1], [3, 3, 2], [6, 6, 3]], "abs_path() failed test 4");
 
@@ -205,10 +214,14 @@ assert(abs_path([[1,1,1], [2,2,2], [3,3,3]]   ) == [[1, 1, 1], [3, 3, 2], [6, 6,
   * @param path  A path. This is a vector starting with a point as first elements and having series of movements as the 
   *   following elements. Each movement is an element [dx, dy, radius] of two deltas relative to the previous path element 
   *   and a corner radius at the target point of the movement.
-  * @param fn  The number of curve fragments to generate for each radius. Optional; the default value is 8.
+  * @param fn  The number of curve fragments to generate for each radius. Optional; the default value is $fr of the current 
+  *   context.
   * @return A vector of points [x, y] that can, for example, be handed to polygon().
+  * @todo Remove the fn parameter. Instead use $fr or (if all radii are ≤2 mm) $frs. This is more in line with the usage 
+  *   of $fa, which is for a similar purpose. Even better, calculate an approximate $fr equivalent here locally from the 
+  *   $fa and $fs special variables, which gets rid of the need for the $fr and $frs special variables.
   */
-function polygon_points(path, fn = 8) = (
+function polygon_points(path, fn = $fr) = (
     polyRound(abs_path(path), fn)
 );
 
@@ -217,9 +230,10 @@ function polygon_points(path, fn = 8) = (
   * @param path  A path. This is a vector starting with a point as first elements and having series of movements as the 
   *   following elements. Each movement is an element [dx, dy, radius] of two deltas relative to the previous path element 
   *   and a corner radius at the target point of the movement.
-  * @param fn  The number of curve fragments to generate for each radius. Optional; the default value is 8.
+  * @param fn  The number of curve fragments to generate for each radius. Optional; the default value is $fr of the current 
+  *   context.
   */
-module rounded_polygon(path, fn) {
+module rounded_polygon(path, fn = $fr) {
     polygon(polygon_points(path, fn));
 }
 
@@ -265,14 +279,13 @@ module battery_socket_base() {
         rotate([90, 0, 0]) {
             // Left half.
             linear_extrude(height = m("d"), convexity = 5)
-                // fn is the number of radius fragments. Divided by 4 as a corner is 1/4 circle. By 2 as these are small radii.
-                rounded_polygon(left_path, fn = 360 / $fa / 4 / 2);
+                rounded_polygon(left_path, fn = $frs);
             
             // Right half, as a mirrored left half.
             translate([m("w"), 0, 0])
                 mirror([1, 0, 0])
                     linear_extrude(height = m("d"), convexity = 5) 
-                        rounded_polygon(left_path, fn = 360 / $fa / 4 / 2);
+                        rounded_polygon(left_path, fn = $frs);
         }
 }
 
@@ -294,8 +307,7 @@ module backwall() {
     translate([0, m("d"), 0])
         rotate([90, 0, 0])
             linear_extrude(height = m("backwall d")) 
-                // fn is the number of fragments for a radius. Divided by 4 as a corner is 1/4 circle. By 2 as these are small radii.
-                rounded_polygon(path, fn = 360 / $fa / 4 / 2);
+                rounded_polygon(path, fn = $frs);
 }
 
 
@@ -311,13 +323,14 @@ module ridge() {
     
     translate([m("ridge offset w"), m("ridge offset d"), m("middle section h") - nothing])
         linear_extrude(height = m("ridge h"))
-            // fn is the number of fragments for a radius. Divided by 4 as a corner is 1/4 circle. By 2 as these are small radii.
-            rounded_polygon(path, fn = 360 / $fa / 4 / 2);
+            rounded_polygon(path, fn = $frs);
 }
 
 
 /** All blocks inside the lock grooves of the battery socket, in their final position. */
 module lock_grooves_blocks() {
+    
+    /* All the blocks inside the left lock groove. Those in the right one are symmetrical to these. */
     module left_blocks() {
         // Paths from the top, given by a starting point and relative movements [delta_x, delta_y, corner_radius].
         left_fillerblock_path = [
