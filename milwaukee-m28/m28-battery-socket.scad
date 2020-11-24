@@ -1,11 +1,12 @@
-/** @todo Add a customizer parameter to generate the battery socket without the block for the terminals. Allows to 
+/** @brief Device-side connector for Milwaukee M28 and V28 powertool batteries.
+  *
+  * @todo Add a customizer parameter to generate the battery socket without the block for the terminals. Allows to 
   *   create blind sockets, such as to secure battery packs for transportation, or to mount them in storage.
   * @todo Add a customizer parameter to choose between creating a solid plastic piece (for a blind plate or similar) 
   *   and one with hollows for terminal clips and wires.
   */
 
 // Up here to appear before any assert() and echo() in the parameters section.
-// Narrow enough to fit into one line of output when the console is at minimum width.
 echo("\n\n============ NEXT RUN ============");
 
 
@@ -43,6 +44,7 @@ $fs= (quality == "final rendering") ? 0.1 :
 
 // Small amount of overlap for unions and differences, to prevent z-fighting.
 nothing = 0.01;
+
 
 /** @brief Provide any measure (that we know of) about this design. This acts as a 
   *   central registry for measures to not clutter the global namespace. "m" for "measure".
@@ -145,6 +147,8 @@ assert(
 /** @brief Replacement for the "==" operator that ignores the imprecision of calculation with numbers in OpenSCAD, because all 
   *   numbers including literals like "10.1" are internally double precision reals. Useful in assert(), because otherwise 
   *   even something simple like assert(8.8 + 2.3 == 11.1) will not be asserted.
+  * @param n1  First number to test for equality.
+  * @param n2  Second number to test for equality.
   * @return true if the difference between the input numbers is less than 1×10¯¹⁰
   */
 function equals(n1, n2) = (
@@ -196,22 +200,35 @@ assert(abs_path([[1,1,1], [2,2,2], [3,3,3]], 2) == [[1, 1, 1], [3, 3, 2], [6, 6,
 assert(abs_path([[1,1,1], [2,2,2], [3,3,3]]   ) == [[1, 1, 1], [3, 3, 2], [6, 6, 3]], "abs_path() failed test 4");
 
 
-/** Shorthand function to create the points of a rounded polygon from a path. This enables to call 
-  * "polygon(polygon_points(left_lockblock_path))". */
-function polygon_points(path, fn) = (
-    // Due to a bug, polyRound(…, fn = undef) will not render anything, so we have to exclude that case.
-    fn == undef ? polyRound(abs_path(path)) :
+/** @brief Shorthand function to create the points of a rounded polygon from a path. This enables to call 
+  *   "polygon(polygon_points(left_lockblock_path))".
+  * @param path  A path. This is a vector starting with a point as first elements and having series of movements as the 
+  *   following elements. Each movement is an element [dx, dy, radius] of two deltas relative to the previous path element 
+  *   and a corner radius at the target point of the movement.
+  * @param fn  The number of curve fragments to generate for each radius. Optional; the default value is 8.
+  * @return A vector of points [x, y] that can, for example, be handed to polygon().
+  */
+function polygon_points(path, fn = 8) = (
     polyRound(abs_path(path), fn)
 );
 
 
-/** Shorthand module to create a rounded polygon from a path. */
+/** @brief Shorthand module to create a rounded polygon from a path.
+  * @param path  A path. This is a vector starting with a point as first elements and having series of movements as the 
+  *   following elements. Each movement is an element [dx, dy, radius] of two deltas relative to the previous path element 
+  *   and a corner radius at the target point of the movement.
+  * @param fn  The number of curve fragments to generate for each radius. Optional; the default value is 8.
+  */
 module rounded_polygon(path, fn) {
     polygon(polygon_points(path, fn));
 }
 
 
-/** Creates a fillet in the first octant, with the 90° angle along the axis. */
+/** @brief A fillet in the first octant, with the 90° angle along the axis.
+  * @param w  Width (x axis extension) of the fillet. This is the first radius to define the asymmetrical fillet.
+  * @param d  Depth (y axis extension) of the fillet. This is the second radius to define the asymmetrical fillet.
+  * @param d  Height (z axis extension) of the fillet.
+  */
 module asymmetrical_fillet(w, d, h) {
     difference() {
         cube([w, d, h]);
@@ -351,7 +368,18 @@ module middle_section_undercut() {
 }
 
 
-/** A hole to cut into the terminal for a connector. Positioned as if cut into the xz plane with [0,0] offset. */
+/** @brief Cutter to cut off the front left corner with an asymmetrical fillet.
+  * @todo Refactor so this can be called with the corner to cut, such as "left back".
+  */
+module corner_cutter() {
+    render() 
+        asymmetrical_fillet(w = m("corner radius w"), d = m("corner radius d"), h = m("side h") + 2 * nothing);
+}
+    
+
+/** @brief A hole to cut into the terminal for a connector. Positioned as if cut into the xz plane with [0,0] offset. 
+  * @todo Refactor so this can be called with the number of the hole to generate.
+  */
 module terminal_hole() {
     // Actual terminal hole.
     translate([m("terminal holes chamfer t"), 0, m("terminal holes chamfer t")])
@@ -366,12 +394,8 @@ module terminal_hole() {
 }
 
 
+/** Device-side connector for Milwaukee M28 and V28 batteries. The main object of this file. */
 module battery_socket() {
-    module corner_cutter() {
-        render() 
-            asymmetrical_fillet(w = m("corner radius w"), d = m("corner radius d"), h = m("side h") + 2 * nothing);
-    }
-    
     difference() {
         union() {
             color("Chocolate") battery_socket_base();
