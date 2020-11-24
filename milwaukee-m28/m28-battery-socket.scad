@@ -2,10 +2,25 @@
   * @details This is exactly the geometry used for the connector on Milwaukee M28 powertools, with the only difference 
   *   that this has a socket only on one side and consists of one single part, not three.
   *
-    * @todo Add a customizer parameter to generate the battery socket without the block for the terminals. Allows to 
+  * @todo Generate the API documentation and include it right into README.md.
+  * @todo Add a Customizer parameter to generate the battery socket without the block for the terminals. Allows to 
   *   create blind sockets, such as to secure battery packs for transportation, or to mount them in storage.
-  * @todo Add a customizer parameter to choose between creating a solid plastic piece (for a blind plate or similar) 
-  *   and one with hollows for terminal clips and wires.
+  * @todo Add a Customizer parameter to choose between creating a solid plastic piece (for a blind plate or similar) 
+  *   and one with hollows for terminal clips and wires. In the latter case, the part probably 
+  *   has to be split in two halves that are then connected with screws.
+  * @todo Add a Customizer parameter that will result in a design that can be printed without 
+  *   supports. That is possible when the part stands on its front surface and has 45° "roofs" at 
+  *   the top of the terminal grooves and middle section undercut and terminal holes. And by 
+  *   starting the center ridge, lock grooves filler blocks and back wall with a 45° angle. And 
+  *   also by using 45° chamfers on the four main corners instead of radii.
+  *     But for mechanical stability, the part should be printed laying on the bottom or top 
+  *   surface. The best option so far is to print the part 45° rotated, standing on an overhanging 
+  *   angled back wall.
+  * @todo Add a Customizer parameter to use inner voids to save plastic when printing with 100% 
+  *    infill. In contrast to infill settings of the slicer, this allows to make those parts 
+  *    massive that have to take the largest loads. Also the infill pattern can be optimized 
+  *    for printability, for example a beecomb pattern at 45° so that it will be upright when 
+  *    printing the part 45° rotated.
   */
 
 // Up here to appear before any assert() and echo() in the parameters section.
@@ -16,7 +31,7 @@ echo("\n\n============ NEXT RUN ============");
 // ======================================================================
 
 // Round Anything library from https://github.com/Irev-Dev/Round-Anything/
-include<Round-Anything/polyround.scad>
+include <Round-Anything/polyround.scad>
 
 
 // (2) CUSTOMIZER PARAMETERS

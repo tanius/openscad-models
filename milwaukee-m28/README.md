@@ -13,6 +13,30 @@ I hope this repository will become the central, well integrated source for all f
 
 [@todo]
 
+1. **Install the Round-Anything library.** 
+
+    1. Go to the built-in library location of OpenSCAD. Depending on your operating system, it will be one of these commands [according to the manual](https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Libraries#Library_Locations):
+
+        ```
+        For Windows:   cd My Documents\OpenSCAD\libraries
+        For Linux:     cd $HOME/.local/share/OpenSCAD/libraries
+        For macOS:     cd $HOME/Documents/OpenSCAD/libraries
+        ```
+
+    2. Clone the library repository:
+
+        ```
+        git clone https://github.com/Irev-Dev/Round-Anything.git
+        ```
+
+2. **Clone this repository.** In any location of your choice, execute:
+
+    ```
+    git clone https://github.com/tanius/milwaukee-m28-extras.git
+    ```
+
+3. **Use in OpenSCAD.** It's the normal OpenSCAD workflow from here. You open the `.scad` file of a design you want to adapt and / or print, configure it in OpenSCAD Customizer, adapt the source code, preview and render and, then export it to `.stl` format and 3D print it from there.
+
 
 # 3. License and Credits
 
