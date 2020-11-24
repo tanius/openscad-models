@@ -1,5 +1,8 @@
-// @todo Add an option to generate the battery socket without the block for the terminals. Allows to 
-//   create blind sockets, such as to secure battery packs for transportation, or to mount them in storage.
+/** @todo Add a customizer parameter to generate the battery socket without the block for the terminals. Allows to 
+  *   create blind sockets, such as to secure battery packs for transportation, or to mount them in storage.
+  * @todo Add a customizer parameter to choose between creating a solid plastic piece (for a blind plate or similar) 
+  *   and one with hollows for terminal clips and wires.
+  */
 
 // Up here to appear before any assert() and echo() in the parameters section.
 // Narrow enough to fit into one line of output when the console is at minimum width.
@@ -17,11 +20,29 @@ include<Round-Anything/polyround.scad>
 // ======================================================================
 
 // Degree of details in the output. Influences segments per degree, filleting quality etc..
-quality = "fast preview"; // ["fast preview", "preview", "rendering", "final rendering"]
+quality = "preview"; // ["fast preview", "preview", "rendering", "final rendering"]
 
 
 // (3) FIXED AND DERIVED MEASURES
 // ======================================================================
+
+// Prevent anything following from showing up as Customizer parameters.
+/* [Hidden] */
+
+// Degrees per fragment of a circle.
+$fa = (quality == "final rendering") ? 1 :
+      (quality == "rendering") ? 3 : 
+      (quality == "preview") ? 6 :
+      (quality == "fast preview") ? 12 : 12; // The OpenSCAD default.
+      
+// Minimum size of circle fragments.
+$fs= (quality == "final rendering") ? 0.1 :
+     (quality == "rendering") ? 0.25 : 
+     (quality == "preview") ? 0.5 :
+     (quality == "fast preview") ? 2 : 2; // The OpenSCAD default.
+
+// Small amount of overlap for unions and differences, to prevent z-fighting.
+nothing = 0.01;
 
 /** @brief Provide any measure (that we know of) about this design. This acts as a 
   *   central registry for measures to not clutter the global namespace. "m" for "measure".
@@ -36,15 +57,16 @@ quality = "fast preview"; // ["fast preview", "preview", "rendering", "final ren
 function m(id) = (
     // Measures on the battery.
     id == "battery play d" ? 2.7 : // When the battery is in the socket.
-    id == "battery snapper wide part total d" ? 6.5 : // On the battery.
+    id == "battery snapper wide part total d" ? 6.5 :
+    id == "battery snapper d" ? 14.1 :
 
     // Main measures on the battery socket.
     id == "w" ? 46.6 :
     id == "d" ? 77 :
     id == "side h" ? 14.8 :
-    id == "corner radius w" ? 6.5 :
-    id == "corner radius d" ? 9.2 :
-    id == "outer edges r" ? 0.7 :
+    id == "corner radius w" ? m("middle section offset w"): // @todo rename to "h edges radius w"
+    id == "corner radius d" ? 7.0 : // @todo rename to "h edges radius d"
+    id == "outer edges r" ? 0.7 :   // @todo rename to "d edges radius"
     id == "backwall d min" ? 2.0 :
     id == "backwall d max" ? 3.9 :
     id == "backwall d" ? (m("backwall d min") + m("backwall d max")) / 2 :
@@ -61,8 +83,10 @@ function m(id) = (
     id == "ridge w" ? 3.9 :
     id == "ridge d" ? 33.3 :
     id == "ridge h" ? 3.7 :
-    id == "ridge round sections d" ? 1.6 : 
+    id == "ridge offset w" ? m("w") / 2 - m("ridge w") / 2 :
     id == "ridge offset d" ? 21.4 :
+    id == "ridge arcs d" ? 1.6 : // Unused. We simplify to a semi-circle arc via a radius the height edges, see below.
+    id == "ridge h edges r" ? m("ridge w") / 2 : // Maximum possible corner radius, yielding a semi-circle at the ends.
     
     // Grooves on the left and right to mount the battery pack mechanically. Closer to the device than all other grooves.
     id == "mount grooves w" ? 3.7 :
@@ -73,26 +97,39 @@ function m(id) = (
     id == "lock grooves w" ? 8.8 : // Full width, including lock block w.
     id == "lock grooves h" ? 3.8 :
     id == "lock grooves min d" ? 
-        m("lock block back offset d") + m("battery play d") + m("battery snapper wide part total d") :
+        m("lock block offset d") + m("lock block d") + m("battery play d") + m("battery snapper d") :
     id == "lock grooves offset w" ? 3.3 :
     id == "lock grooves offset h" ? m("side h") - m("lock grooves h") :
     
     // Snap mechanism inside the snapper grooves.
     id == "lock block w" ? 2.6 :
-    id == "lock block total d" ? 15.2 :
-    id == "lock block ramp d" ? 4.2 :
-    id == "lock block back offset d" ? 24.2 :
+    id == "lock block d" ? 15.2 :
+    id == "lock block ramp d" ? 4.2 : // As part of "lock block d".
+    id == "lock block offset d" ? 9.0 :
     
     // The three grooves before, in between and after the terminal block. 1-3 from left to right.
     id == "terminal grooves w" ? 3.4 :
-    id == "terminal grooves 1+3 offset w" ? 8.7 : // Measured from the closest side of each.
+    id == "terminal grooves 1+3 offset w" ? 8.7 : // Measured from the side face closest to each groove.
     id == "terminal grooves 1+3 d" ? m("middle section undercut d") :
     id == "terminal grooves 2 offset w" ? 19.5 :
     id == "terminal grooves 2 d" ? 19.1 :
+    
+    // The holes for the electrical terminal connectors, and these connectors.
+    // "Outer" measures refer to the chamfer outline, not to the actual hole.
+    id == "terminal holes w" ? 1.3 :
+    id == "terminal holes h" ? 7.0 :
+    id == "terminal holes min d" ? 13.0 : // To accommodate the terminals, which protrude 13 mm out of the casing.
+    id == "terminal holes chamfer t" ? 0.9 :
+    id == "terminal holes chamfer d" ? 2.0 :
+    id == "terminal holes outer w" ? m("terminal holes w") + 2 * m("terminal holes chamfer t") :
+    id == "terminal holes outer h" ? m("terminal holes h") + 2 * m("terminal holes chamfer t") :
+    id == "terminal holes 1 outer offset w" ? 14.4 + 0.5 : // Measured in leftmost position, +0.5 mm moves it to the center.
+    id == "terminal holes 2 outer offset w" ? 23.8 + 0.5 :
+    id == "terminal holes 3 outer offset w" ? 29.5 + 0.5 :
+    id == "terminal holes outer offset h" ? 3.6 :
 
     undef
 );
-
 assert(
     equals(
         m("terminal grooves 1+3 offset w") + m("terminal grooves w"),
@@ -116,14 +153,15 @@ function equals(n1, n2) = (
 );
 
 
-/** @brief Convert a path into a list of points.
-  * @detail A path is a vector starting with a point as first elements and having series of movements as the following elements. 
-  *   Each movement is an element [dx, dy, radius] of two deltas relative to the previous path element and a corner radius at 
-  *   the target point of the movement. Paths can be interpreted as open paths or (by assuming a last implicit movement back to 
-  *   the starting point) as closed paths / polygons. When interpreted as open paths, the corner radius of the starting point 
-  *   has no meaning.
-  *   When converting a path into a list of points, for each path element the x resp. y component of the point is the sum of 
-  *   the delta_x resp. delta_y components of all preceding points, and the radius component is taken over unchanged.
+/** @brief Convert a relative path into an absolute path.
+  * @detail A relative path is a vector starting with a corner [x, y, corner_radius] as the first element and having a series 
+  *   of movements as the following elements. Each movement is an element [dx, dy, radius] of two deltas relative to the 
+  *   previous path element and a corner radius at the target point of the movement. Paths can be interpreted as open paths or 
+  *   (by assuming a last implicit movement back to the starting point) as closed paths / polygons. When interpreted as open 
+  *   paths, the corner radius of the starting point has no meaning.
+  *   When converting a relative path into an absolute path, the relative movements are resolved into absolute coordinates, but 
+  *   the corner_radius spec is unchanged. So it is not a simple set of points afterwards, but still a path, as there can be 
+  *   the corner_radius elements that specify curved sections.
   * @param path  A path. This is a vector starting with a point as first elements and having series of movements as the 
   *   following elements. Each movement is an element [dx, dy, radius] of two deltas relative to the previous path element 
   *   and a corner radius at the target point of the movement. Paths can be interpreted as open paths or (by assuming a 
@@ -133,14 +171,14 @@ function equals(n1, n2) = (
   *   defaults to the highest possible index.
   * @todo Contribute this function to the Round Anything library.
   */
-function to_points(path, last_index) = (
+function abs_path(path, last_index) = (
     // Recursion end case.
     let(i = last_index == undef ? len(path) - 1 : last_index)
     i == 0 ? [path[0]] :
         
     // Recursion case.
     let(
-        prev_points = to_points(path, i - 1),
+        prev_points = abs_path(path, i - 1),
         prev_point = prev_points[i - 1]
     )
     concat(
@@ -152,11 +190,37 @@ function to_points(path, last_index) = (
         ]]
     )
 );
+assert(abs_path([[1,1,1], [2,2,2], [3,3,3]], 0) == [[1, 1, 1]], "abs_path() failed test 1");
+assert(abs_path([[1,1,1], [2,2,2], [3,3,3]], 1) == [[1, 1, 1], [3, 3, 2]], "abs_path() failed test 2");
+assert(abs_path([[1,1,1], [2,2,2], [3,3,3]], 2) == [[1, 1, 1], [3, 3, 2], [6, 6, 3]], "abs_path() failed test 3");
+assert(abs_path([[1,1,1], [2,2,2], [3,3,3]]   ) == [[1, 1, 1], [3, 3, 2], [6, 6, 3]], "abs_path() failed test 4");
 
-assert(to_points([[1,1,1], [2,2,2], [3,3,3]], 0) == [[1, 1, 1]], "to_points() failed test 1");
-assert(to_points([[1,1,1], [2,2,2], [3,3,3]], 1) == [[1, 1, 1], [3, 3, 2]], "to_points() failed test 2");
-assert(to_points([[1,1,1], [2,2,2], [3,3,3]], 2) == [[1, 1, 1], [3, 3, 2], [6, 6, 3]], "to_points() failed test 3");
-assert(to_points([[1,1,1], [2,2,2], [3,3,3]]   ) == [[1, 1, 1], [3, 3, 2], [6, 6, 3]], "to_points() failed test 4");
+
+/** Shorthand function to create the points of a rounded polygon from a path. This enables to call 
+  * "polygon(polygon_points(left_lockblock_path))". */
+function polygon_points(path, fn) = (
+    // Due to a bug, polyRound(…, fn = undef) will not render anything, so we have to exclude that case.
+    fn == undef ? polyRound(abs_path(path)) :
+    polyRound(abs_path(path), fn)
+);
+
+
+/** Shorthand module to create a rounded polygon from a path. */
+module rounded_polygon(path, fn) {
+    polygon(polygon_points(path, fn));
+}
+
+
+/** Creates a fillet in the first octant, with the 90° angle along the axis. */
+module asymmetrical_fillet(w, d, h) {
+    difference() {
+        cube([w, d, h]);
+        
+        translate([w, d, 0])
+            scale([1, d / w, 1])
+                cylinder(h = h, r = w);
+    }
+}
 
 
 // (5) PARTS
@@ -181,16 +245,18 @@ module battery_socket_base() {
     translate([0, m("d"), 0])
         rotate([90, 0, 0]) {
             // Left half.
-            linear_extrude(height = m("d")) 
-                polygon(polyRound(to_points(left_path), fn = 8));
+            linear_extrude(height = m("d"), convexity = 5)
+                // fn is the number of radius fragments. Divided by 4 as a corner is 1/4 circle. By 2 as these are small radii.
+                rounded_polygon(left_path, fn = 360 / $fa / 4 / 2);
             
             // Right half, as a mirrored left half.
             translate([m("w"), 0, 0])
                 mirror([1, 0, 0])
-                    linear_extrude(height = m("d")) 
-                        polygon(polyRound(to_points(left_path), fn = 8));
+                    linear_extrude(height = m("d"), convexity = 5) 
+                        rounded_polygon(left_path, fn = 360 / $fa / 4 / 2);
         }
 }
+
 
 /** Back wall of the battery socket, in its final position. */
 module backwall() {
@@ -209,37 +275,126 @@ module backwall() {
     translate([0, m("d"), 0])
         rotate([90, 0, 0])
             linear_extrude(height = m("backwall d")) 
-                polygon(polyRound(to_points(path), fn = 8));
-            // The following is equivalent and more readable but preview is (2.68 s - 2.07 s) / 2.07 s = 29% slower 
-            // (and the cache cannot help as the vector math is slow, before resulting in any cacheable geometry):
-            // polyRoundExtrude(to_points(path), length = m("backwall d"), r1 = 0, r2 = 0, fn = 8); 
+                // fn is the number of fragments for a radius. Divided by 4 as a corner is 1/4 circle. By 2 as these are small radii.
+                rounded_polygon(path, fn = 360 / $fa / 4 / 2);
 }
+
 
 /** Ridge block at the top of the battery socket, in its final position. */
 module ridge() {
+    // Ridge outline path from the top, as a starting point and relative movements [delta_x, delta_y, corner_radius].
+    path = [
+        [0, 0, m("ridge h edges r")],
+        [m("ridge w"), 0, m("ridge h edges r")],
+        [0, m("ridge d"), m("ridge h edges r")],
+        [-m("ridge w"), 0, m("ridge h edges r")]
+    ];
     
+    translate([m("ridge offset w"), m("ridge offset d"), m("middle section h")])
+        linear_extrude(height = m("ridge h"))
+            // fn is the number of fragments for a radius. Divided by 4 as a corner is 1/4 circle. By 2 as these are small radii.
+            rounded_polygon(path, fn = 360 / $fa / 4 / 2);
 }
 
-module battery_socket() {
-    battery_socket_base();
+
+/** All blocks inside the lock grooves of the battery socket, in their final position. */
+module lock_grooves_blocks() {
+    module left_blocks() {
+        // Paths from the top, given by a starting point and relative movements [delta_x, delta_y, corner_radius].
+        left_fillerblock_path = [
+            [0, 0, 0],
+            [m("lock grooves w"), 0, 0],
+            [0, m("d") - m("lock grooves min d") - m("backwall d"), 0],
+            [-m("lock grooves w"), 0, 0]
+        ];
+        left_lockblock_path = [
+            [0, 0, 0],
+            [m("lock block w"), m("lock block ramp d"), 0],
+            [0, m("lock block d") - m("lock block ramp d"), 0],
+            [-m("lock block w"), 0, 0]
+        ];
+        
+        linear_extrude(height = m("lock grooves h")) {
+            translate([m("lock grooves offset w"), m("lock grooves min d")])
+                rounded_polygon(left_fillerblock_path);
+            translate([m("lock grooves offset w"), m("lock block offset d")])
+                rounded_polygon(left_lockblock_path);
+        }
+    }
     
-    backwall();
-    ridge();
-    
-    // @todo Add blocks to fill the unused back part of the lock grooves.
-    // @todo Add the lock mechanism blocks.
-    // @todo Cut the terminal grooves.
-    // @todo Cut the middle section undercut.
-    // @todo Cut off the corner roundings at the front and back face.
-    // @todo Cut the terminal holes.
+    translate([0, 0, m("lock grooves offset h")]) {
+        left_blocks();
+        translate([m("w"), 0, 0])  mirror([1, 0, 0])  left_blocks();
+    }
 }
+
+
+/** Cutters for the terminal grooves of the battery socket, in their final position. */
+module terminal_grooves() {
+    translate([m("terminal grooves 1+3 offset w") + nothing, -nothing, -nothing])
+        cube([m("terminal grooves w"), m("terminal grooves 1+3 d"), m("side h")]);
+    
+    translate([m("terminal grooves 2 offset w"), -nothing, -nothing])
+        cube([m("terminal grooves w"), m("terminal grooves 2 d"), m("side h")]);
+    
+    translate([m("w") - m("terminal grooves 1+3 offset w") - m("terminal grooves w") - nothing, -nothing, -nothing])
+        cube([m("terminal grooves w"), m("terminal grooves 1+3 d"), m("side h")]);
+}
+
+
+/** Cutter for the undercut under the terminals, in its final position. */
+module middle_section_undercut() {
+    translate([m("middle section offset w"), -nothing, -nothing])
+        cube([m("middle section w"), m("middle section undercut d"), m("middle section undercut h")]);
+}
+
+
+/** A hole to cut into the terminal for a connector. Positioned as if cut into the xz plane with [0,0] offset. */
+module terminal_hole() {
+    // Actual terminal hole.
+    translate([m("terminal holes chamfer t"), 0, m("terminal holes chamfer t")])
+        cube([m("terminal holes w"), m("terminal holes min d"), m("terminal holes h")]);
+    
+    // Chamfer around the hole.
+    chamfer_scale = [m("terminal holes w") / m("terminal holes outer w"), m("terminal holes h") / m("terminal holes outer h")];
+    translate([m("terminal holes outer w") / 2, 0, m("terminal holes outer h") / 2]) rotate([-90, 0, 0]) {
+        linear_extrude(height = m("terminal holes chamfer t"), scale = chamfer_scale)
+            square([m("terminal holes outer w"), m("terminal holes outer h")], center = true);
+    }
+}
+
+
+module battery_socket() {
+    module corner_cutter() {
+        render() 
+            asymmetrical_fillet(w = m("corner radius w"), d = m("corner radius d"), h = m("side h") + 2 * nothing);
+    }
+    
+    difference() {
+        union() {
+            color("Chocolate") battery_socket_base();
+            color("Chocolate") backwall();
+            color("SteelBlue") ridge();
+            color("SteelBlue") lock_grooves_blocks();
+        }
+        
+        terminal_grooves();
+        middle_section_undercut();
+        
+        translate([-nothing, -nothing, -nothing])                                                     corner_cutter();
+        translate([m("w") + nothing, -nothing, -nothing])         mirror([1, 0, 0])                   corner_cutter();
+        translate([-nothing, m("d") + nothing, -nothing])         mirror([0, 1, 0])                   corner_cutter();
+        translate([m("w") + nothing, m("d") + nothing, -nothing]) mirror([1, 0, 0]) mirror([0, 1, 0]) corner_cutter();
+        
+        translate([m("terminal holes 1 outer offset w"), -nothing, m("terminal holes outer offset h")]) terminal_hole();
+        translate([m("terminal holes 2 outer offset w"), -nothing, m("terminal holes outer offset h")]) terminal_hole();
+        translate([m("terminal holes 3 outer offset w"), -nothing, m("terminal holes outer offset h")]) terminal_hole();
+    }
+}
+
 
 // (6) SCENE
 // ======================================================================
-
-module scene() {
-    battery_socket();
-}
 
 // Entry point of geometry generation.
 //
@@ -248,6 +403,6 @@ module scene() {
 // 2020.09.18). See: http://forum.openscad.org/-tp27991.html .
 if (quality == "final rendering")
     union()
-        scene();
+        battery_socket();
 else
-    scene();
+    battery_socket();
