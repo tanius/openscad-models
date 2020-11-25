@@ -2,6 +2,15 @@
   * @brief A utility library of more generally useful functions, from the current directory.
   * @details It might make sense to outsource this library into its own project once 
   *   it is mature enough. The filename is already prepared for that case.
+  *
+  * @todo Rename "path" to something else to be compatible with the BOSL library, where paths are 
+  *   simply ordered sets of 2D or 3D points. Perhaps "deltapath" or "dpath". Or even split 
+  *   between "dpath" for a simple delta path without radii and "dxpath" for one with radii or 
+  *   other extensions. BOSL has "2dpath" and "3dpath", even though their naming is a bit 
+  *   inconsistent. See: https://github.com/revarbat/BOSL/wiki/paths.scad . So maybe:
+  *   "deltapath2d", "deltapath3d", "xdeltapath2d", "xdeltapath3d".
+  * @todo Contribute the functions related to delta paths to the BOSL library. See:
+  *   https://github.com/revarbat/BOSL/wiki/paths.scad
   */
 
 
