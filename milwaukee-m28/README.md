@@ -38,7 +38,16 @@ I hope this repository will become the central, well integrated source for all f
 3. **Use in OpenSCAD.** It's the normal OpenSCAD workflow from here. You open the `.scad` file of a design you want to adapt and / or print, configure it in OpenSCAD Customizer, adapt the source code, preview and render and, then export it to `.stl` format and 3D print it from there.
 
 
-# 3. License and Credits
+# 3. Remaining Work
+
+To-do items for individual designs are listed at the top of their `.scad` file. Here are to-do items for the project in more general:
+
+* Add an overview image into `README.md`, showing the parts contained in this repository. Ideally it should be possible to re-generate this automatically with a script that calls OpenSCAD on the command line.
+* Generate the API documentation from the `.scad` files and include it here into `README.md`.
+* Create a system to configure part colors globally. Either put the colors into `measures.scad` or create a file `constants.scad` for this and similar purposes.
+
+
+# 4. License and Credits
 
 **Licenses.** This repository exclusively contains material under free software licencses and open content licenses. All files are provided under the Unlicense, except where explicitly stated otherwise for a specific file in the header of that file. See [LICENSE.md](https://github.com/fairdirect/foodrescue-app/blob/master/LICENSE.md) for details about Unlicense.
 
