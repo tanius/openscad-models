@@ -9,7 +9,7 @@
 // (1) INCLUDES
 // ======================================================================
 
-use <revolve2.scad>
+use <lib/revolve2.scad>
 
 
 // (2) PARAMETERS

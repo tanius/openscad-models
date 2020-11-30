@@ -1,17 +1,36 @@
-# Parametric Respirator Outward Filter
+# Respirator Accessory
 
 **[1. Overview](#1-overview)**<br/>
-**[2. Parameters](#2-parameters)**<br/>
-**[3. Code Conventions](#3-code-conventions)**<br/>
-**[4. Todo List](#4-todo-list)**
+**[2. Parts](#2-parts)**
 
-<p align="center">
-  <a href="README.DesignRendering.png?raw=true"><img src="README.DesignRendering.png?raw=true" width="40%"></a><br/>
-  (Click to enlarge.)
-</p>
+* [2.1. Outward Filter](#2-1-outward-filter)
+* [2.2. Strap Extender](#2-2-strap-extender)
+
+**[3. Todo List](#3-todo-list)**
+**[4. Code Conventions](#4-code-conventions)**<br/>
 
 
 ## 1. Overview
+
+**Description.** A small collection of parametric accessory parts for respirator masks. The parts have been designed for the [Polish military repirator MP-5](https://gasmaskandrespirator.fandom.com/wiki/MP-5) but, since they are fully parametric, can often be adapted to other models by just changing a few parameters. All parts have been designed with FDM 3D printing in mind.
+
+* **Installation.** Clone or download the repository, or download all the files. Open any `.scad` file in OpenSCAD. It will find the required libraries in `lib/`, if any.
+
+* **Project home.** [tanius/respirator-accessory on Github](https://github.com/tanius/respirator-accessory)
+
+* **Author.** tanius ([Github](https://github.com/tanius), [Thingiverse](https://www.thingiverse.com/tanius))
+
+* **Licence.** This design is dual-licensed under [Unlicense](https://unlicense.org/) and [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) (or any later version at your option). Libraries bundled with this repository may use different licences, as mentioned in their library files.
+
+
+## 2. Parts
+
+### 2.1. Outward Filter
+
+<p align="center">
+  <a href="doc/outward-filter-01.png?raw=true"><img src="doc/outward-filter-01.png?raw=true" width="40%"></a><br/>
+  (Click to enlarge.)
+</p>
 
 * **Description.** A fully parametric, 3D printable filter holder for the exhale port of respirators. The intended use is outward protection of others from pathogens that may be exhaled by the respirator user. This makes the use of a valved respirator suitable in situations where masks with outward protection are required, such as in many public spaces during the COVID-19 pandemic.
 
@@ -21,22 +40,11 @@
 
 * **Usage.** To use this design, add filter material from a surgical mask or similar in between the two parts, with a good amount of overlap so that it covers also the thread section. Screw the parts together. The filter material is meant to be captured in between the inner and outer thread, which holds it in place and tightens it against the filter holder.
 
-* **Installation.** Clone or download the repository, or download all the files. Open `respirator_outward_filter.scad` in OpenSCAD. It will find the required library `revolve2.scad` that is supplied together with the design in the same directory.
-
 * **Customizing.** You need to use OpenSCAD for parametrizing this design. The Thingiverse customizer app does not work because it expects a single `.scad` file but this design also includes another file `revolve2.scad`.
 
 * **3D printing.** The initial parameters for the MP-5 compatible outward filter result in a part that is 3D printable without supports. As long as your chosen parameters for part radii and for `cone_section_truncate_angle` do not result in an overhang of >45° of the central cone section wall, the part is printable without supports. All threads use 45° flank angles for printability, and the clip ring adjusts itself to the inclination so that no overhang exceeds 45°.
 
-* **Project home.** [tanius/respirator-outward-filter on Github](https://github.com/tanius/respirator-outward-filter)
-
-* **Author.** tanius ([Github](https://github.com/tanius), [Thingiverse](https://www.thingiverse.com/tanius))
-
-* **Licence.** This design is dual-licensed under [Unlicense](https://unlicense.org/) and [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) (or any later version at your option). Libraries bundled with this repository may use different licences, as mentioned in their library files.
-
-
-## 2. Parameters
-
-All measures are in millimeters. All angles are in degrees.
+**Parameters.** All measures are in millimeters. All angles are in degrees.
 
 * `quality`: Render quality. Influences segments per degree for circular shapes.
 * `scene_content`: What to show. Options are: "body only", "cap only", "both (cap opened)", "both (cap closed one turn)", "both (cap closed)".
@@ -54,7 +62,24 @@ All measures are in millimeters. All angles are in degrees.
 * `thread_gap`: Radial gap between inner and outer thread. Meant to accommodate the filter material.
 
 
-## 3. Code Conventions
+### 2.1. Strap Extender
+
+<p align="center">
+  <a href="doc/strap-extender-01.png?raw=true"><img src="doc/strap-extender-01.png?raw=true" width="40%"></a><br/>
+  (Click to enlarge.)
+</p>
+
+
+## 3. Todo List
+
+Only about todo items for the repository as a whole. Todo items for individual parts are contained in their `.scad` files and marked `@todo`.
+
+* Create versions that can be used with the Thingiverse customizer, by embedding the libraries (like `revolve2.scad`) into the main `.scad` files. This should probably be done by a build script.
+* Generate the documentation in HTML format using Doxygen. Since OpenSCAD is quite similar to C syntax, this should be possible relatively easily.
+* Create a way to re-generate the illustrations in `doc/*.png` automatically using a build script. Should also include some image processing to create versions as needed for Thingiverse thumbnails (4:3, smaller size) and other purposes.
+
+
+## 4. Code Conventions
 
 The following code conventions are used in the design's OpenSCAD code (so, not in the `revolve2.scad` library).
 
@@ -97,10 +122,3 @@ The following code conventions are used in the design's OpenSCAD code (so, not i
 * **Avoiding z-fighting.** For difference() by making the cutout larger, and avoid z-fighting for union() by making the parts overlap. Use the variable "nothing=0.01" for that (see below). Since union() z-fighting does not hide anything in preview mode and generates no errors when rendering, it is also ok to just hide these z-fighting artifacts visually by giving parts the same color.
 
 * **Angles for printability.** Measure angles against vertical when discussing printability. Because the 45° rule for overhangs does so ("angles must be ≤45° to be printable on FDM printers").
-
-
-## 4. Todo List
-
-* Create a version that can be used with the Thingiverse customizer, by embedding `revolve2.scad` into the main design file.
-* Generate the documentation in HTML format using Doxygen. Since OpenSCAD is quite similar to C syntax, this should be possible relatively easily.
-* All todo items found in the code, marked with `@todo`.
