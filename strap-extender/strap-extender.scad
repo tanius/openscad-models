@@ -13,7 +13,21 @@
   *   strap mountpoint in the back, both attached to a flat table. The "natural orientation" in use 
   *   is not relevant, as we don't draw the part in use.
   *
+  * @todo Add a README file, and fill in the content published on Thingiverse.
+  * @todo Place the triangular pieces for the edges of the strap connector completely on the upper 
+  *   part, as they are stabilized by the attached wall there. They would just break off at the 
+  *   lower part.
+  * @todo Change the format of point sets to define outlines so that the points are calculated from 
+  *   the previous point plus a vector, as done once in this file already. This is more readable, and 
+  *   also less redundanct as a measure is only added once and then affects all points following it.
+  *   But, even better is to define the points offsets as a vector (also including the radius as third 
+  *   component) and then to use the "var = [for …]" list comprehension to convert to a new vector of 
+  *   polygon corner points by adding the first and second components only to the previous point.
   * @todo Add a cutout for the head of the cable tie.
+  * @todo To better protect the extension against turning around on the maskmount, it is better 
+  *   to give the upper extension a hook-shaped part to reach into the lower extension and below the 
+  *   maskmount cap. To facilitate this, the upper part must either be able to slide back and forth 
+  *   a bit, or it must end with the hook so that the hook can be turned into its position from above.
   * @todo Use three additional cutters to cut the large-radius overhangs for printability, preserving 
   *   the circle radius where it is less than 45° against vertical.
   * @todo Make the fn parameter to all polyRoundExtrude() calls depend on the chosen quality setting.
@@ -29,6 +43,7 @@ echo("\n\n============ NEXT RUN ============");
 // (1) INCLUDES
 // ======================================================================
 
+// Round Anything library from https://github.com/Irev-Dev/Round-Anything/
 include<Round-Anything/polyround.scad>
 
 
@@ -171,6 +186,8 @@ function radius_cutoff(angle, r) = (
 /** @brief Blocks that capture the outline of the strapmount part. One rectangular block that goes 
   *   through the strapmount hole, and two triangular blocks. Since this is a special-purpose part, 
   *   it is already positioned for mounting in *_extension_base().
+  * @todo Make the implementation more compact by using delta lists for the points and only having 
+  *   one list that is modified by mirroring and extending.
   */
 module strapmount_capture_blocks(extend_triangles = false) {
     hole_w = d("strapmount hole w") - 2 * d("gap");
@@ -300,6 +317,8 @@ module maskmount_cap(h = d("maskmount cap h"), orient = "top", grow = 0) {
         polyRoundExtrude(cap_outline, length = h, r1 = r1, r2 = r2, fn = 8);
 }
 
+/** @brief Stem part of the MP-5 respirator clip mount on the mask itself. Currently unused.
+  */
 module maskmount_stem(h = d("maskmount stem h")) {
     stem_corner_r = d("maskmount stem corner r");
     // Centered around the y axis since the outline is symmetrical. This simplifies moving it.
@@ -329,8 +348,6 @@ module maskmount_stem(h = d("maskmount stem h")) {
   * @cut_dh  Channel cut depth in the z direction.
   */
 module cabletie_cutter(d_offset = 0, cut_dw = d("extension cabletie cut t"), cut_dh = d("extension cabletie cut t")) {
-    // "extension cabletie cut d"
-    // "extension cabletie cut t"
     edge_r = d("extension min r");
     bend_r = d("extension cabletie bend r");
     cut_w = d("extension w") + 2 * nothing;
