@@ -1,3 +1,11 @@
+/** @todo The clip section should have the clips not at the very end, but so that the tube shape touches the mask body 
+  *   when mounting the part. This will help to reduce leakage when using the outward filter.
+  * 
+  * @todo The height of the device can be reduced considerably by letting the clip section point into the device, not outwards.
+  *   This is preferable, as a device of 10-12 mm height at the upper part will not block anything in the field of vision, at 
+  *   least when used with the Polish MP-5 respirator.
+  */
+
 // (1) INCLUDES
 // ======================================================================
 
