@@ -81,23 +81,23 @@ Special care was taken to create a design that results in a usable, fast preview
 
 **Building and assembly.** 
 
-    1. To use this design in OpenSCAD, you also need to install the [Round Anything library](https://github.com/Irev-Dev/Round-Anything/).
+1. To use this design in OpenSCAD, you also need to install the [Round Anything library](https://github.com/Irev-Dev/Round-Anything/).
 
-    2. Customize the part in the OpenSCAD customizer by choosing the extension length.
+2. Customize the part in the OpenSCAD customizer by choosing the extension length.
 
-    3. Print the upper part and lower part twice each. I used ABS with 100% infill.
+3. Print the upper part and lower part twice each. I used ABS with 100% infill.
 
-    4. Remove the original middle or upper headstraps. The design does not work for extending the lower headstraps.
+4. Remove the original middle or upper headstraps. The design does not work for extending the lower headstraps.
 
-    5. Remove the triangular clip around the mask's attachment point for the headstrap. It will not break when bending it, as it's a strange, very tough plastic. But you have to use quite some force to pull and twist the clips off.
+5. Remove the triangular clip around the mask's attachment point for the headstrap. It will not break when bending it, as it's a strange, very tough plastic. But you have to use quite some force to pull and twist the clips off.
 
-    6. Hook the lower extension part with its slot around the mask's attachment point.
+6. Hook the lower extension part with its slot around the mask's attachment point.
 
-    7. Insert the part that remains on the end of the headstrap into the other end of the extension part.
-    
-    8. Push the upper part of the extension onto the lower one.
+7. Insert the part that remains on the end of the headstrap into the other end of the extension part.
 
-    9. Seal both parts of the strap extender together with a commonplace 4.8 mm wide cable tie, using the groove prepared for that.
+8. Push the upper part of the extension onto the lower one.
+
+9. Seal both parts of the strap extender together with a commonplace 4.8 mm wide cable tie, using the groove prepared for that.
 
 
 ## 3. Todo List
