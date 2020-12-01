@@ -16,13 +16,13 @@
 
 In Europe, surplus stocks of the Polish MP-5 respirator are widely available on eBay etc. in like-new quality for about 20 EUR. It is a relatively recent (~2006) model that is not inferior to new masks that cost 200 EUR and up. So for people looking for affordable high-grade respiratory protection, this is a good base. For example, for protection against the SARS-CoV-2 coronavirus or also for protection against fine dust, you would use this mask together with a new P3 R filter with RD40 mount, which is commercially available easily. I can't comment on the safety of the original CBRN filters that come with the mask.
 
-* **Installation.** Clone or download the repository, or download all the files. Open any `.scad` file in OpenSCAD. It will find the required libraries in `lib/`, if any.
+**Installation.** Clone or download the repository, or download all the files. Open any `.scad` file in OpenSCAD. It will find the required libraries in `lib/`, if any.
 
-* **Project home.** [tanius/respirator-accessory on Github](https://github.com/tanius/respirator-accessory)
+**Project home.** [tanius/respirator-accessory on Github](https://github.com/tanius/respirator-accessory)
 
-* **Author.** tanius ([Github](https://github.com/tanius), [Thingiverse](https://www.thingiverse.com/tanius))
+**Author.** tanius ([Github](https://github.com/tanius), [Thingiverse](https://www.thingiverse.com/tanius))
 
-* **Licence.** This design is dual-licensed under [Unlicense](https://unlicense.org/) and [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) (or any later version at your option). Libraries bundled with this repository may use different licences, as mentioned in their library files.
+**Licence.** This design is dual-licensed under [Unlicense](https://unlicense.org/) and [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) (or any later version at your option). Libraries bundled with this repository may use different licences, as mentioned in their library files.
 
 
 ## 2. Parts
@@ -34,13 +34,13 @@ In Europe, surplus stocks of the Polish MP-5 respirator are widely available on 
   (Click to enlarge.)
 </p>
 
-* **Description.** A fully parametric, 3D printable filter holder for the exhale port of respirators. The intended use is outward protection of others from pathogens that may be exhaled by the respirator user. This makes the use of a valved respirator suitable in situations where masks with outward protection are required, such as in many public spaces during the COVID-19 pandemic.
+**Description.** A fully parametric, 3D printable filter holder for the exhale port of respirators. The intended use is outward protection of others from pathogens that may be exhaled by the respirator user. This makes the use of a valved respirator suitable in situations where masks with outward protection are required, such as in many public spaces during the COVID-19 pandemic.
 
-    The initial parameter values create a version for the [Polish military respirator MP-5](https://gasmaskandrespirator.fandom.com/wiki/MP-5), using a clip-on mechanism. To adapt it to other respirators, you will have to design your own mounting mechanism, in addition to configuring the parameters. STL files for this version are [available on Thingiverse](https://www.thingiverse.com/thing:4639075), so you don't have to render them yourself with OpenSCAD.
+The initial parameter values create a version for the [Polish military respirator MP-5](https://gasmaskandrespirator.fandom.com/wiki/MP-5), using a clip-on mechanism. To adapt it to other respirators, you will have to design your own mounting mechanism, in addition to configuring the parameters. STL files for this version are [available on Thingiverse](https://www.thingiverse.com/thing:4639075), so you don't have to render them yourself with OpenSCAD.
 
-    Special care was taken to create a design that results in a usable, fast preview mode in OpenSCAD, to allow an interactive development process. This was done by using a very fast thread generation library (`revolve2.scad`) and preferring extrusion to `difference()` operations, because it is much faster.
+Special care was taken to create a design that results in a usable, fast preview mode in OpenSCAD, to allow an interactive development process. This was done by using a very fast thread generation library (`revolve2.scad`) and preferring extrusion to `difference()` operations, because it is much faster.
 
-* **Customizing.** You need to use OpenSCAD for parametrizing this design. The Thingiverse customizer app does not work because it expects a single `.scad` file but this design also includes another file `revolve2.scad`. Available parameters (all measures in mm, all angles in degrees):
+**Customizing.** You need to use OpenSCAD for parametrizing this design. The Thingiverse customizer app does not work because it expects a single `.scad` file but this design also includes another file `revolve2.scad`. Available parameters (all measures in mm, all angles in degrees):
 
 * `quality`: Render quality. Influences segments per degree for circular shapes.
 * `scene_content`: What to show. Options are: "body only", "cap only", "both (cap opened)", "both (cap closed one turn)", "both (cap closed)".
@@ -57,9 +57,9 @@ In Europe, surplus stocks of the Polish MP-5 respirator are widely available on 
 * `cap_turns`: Turns to close resp. open the cap.
 * `thread_gap`: Radial gap between inner and outer thread. Meant to accommodate the filter material.
 
-* **3D printing.** The initial parameters for the MP-5 compatible outward filter result in a part that is 3D printable without supports. As long as your chosen parameters for part radii and for `cone_section_truncate_angle` do not result in an overhang of >45° of the central cone section wall, the part is printable without supports. All threads use 45° flank angles for printability, and the clip ring adjusts itself to the inclination so that no overhang exceeds 45°.
+**3D printing.** The initial parameters for the MP-5 compatible outward filter result in a part that is 3D printable without supports. As long as your chosen parameters for part radii and for `cone_section_truncate_angle` do not result in an overhang of >45° of the central cone section wall, the part is printable without supports. All threads use 45° flank angles for printability, and the clip ring adjusts itself to the inclination so that no overhang exceeds 45°.
 
-* **Building and assembly.** To use this design, add filter material from a surgical mask or similar in between the two parts, with a good amount of overlap so that it covers also the thread section. Screw the parts together. The filter material is meant to be captured in between the inner and outer thread, which holds it in place and tightens it against the filter holder.
+**Building and assembly.** To use this design, add filter material from a surgical mask or similar in between the two parts, with a good amount of overlap so that it covers also the thread section. Screw the parts together. The filter material is meant to be captured in between the inner and outer thread, which holds it in place and tightens it against the filter holder.
 
 
 ### 2.1. Strap Extender
@@ -69,7 +69,7 @@ In Europe, surplus stocks of the Polish MP-5 respirator are widely available on 
   (Click to enlarge.)
 </p>
 
-* **Description.** A parametric, 3D printable OpenSCAD design for headstrap extension clips for the 
+**Description.** A parametric, 3D printable OpenSCAD design for headstrap extension clips for the 
 [Polish military respirator MP-5](https://gasmaskandrespirator.fandom.com/wiki/MP-5). In effect, it allows to move the middle and upper headstrap mounts to the back, which will remove pressure from the straps if your head is too large to wear the mask comfortably. Since it is not easily possible to extend the straps themselves or manufacture longer ones, this is the simplest option to adapt the mask to a larger heads, as you can move the strap mountpoints up to about 50-60 mm per side to the back.
 
 **Customizing.** Available parameters (all measures in mm, all angles in degrees):
@@ -79,7 +79,7 @@ In Europe, surplus stocks of the Polish MP-5 respirator are widely available on 
 * `create_cross_section`: If to cut the model in half. Useful for debugging.
 * `extension_length`: How much to offset the strap mount relative to the original position. For comparison, the rubber band of the middle headstraps on the MP-5 respirator sizes 1-2 can be extended by about 90 mm per side at the most.
 
-* **Building and assembly.** 
+**Building and assembly.** 
 
     1. To use this design in OpenSCAD, you also need to install the [Round Anything library](https://github.com/Irev-Dev/Round-Anything/).
 
