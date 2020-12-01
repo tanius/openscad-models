@@ -6,13 +6,15 @@
 * [2.1. Outward Filter](#2-1-outward-filter)
 * [2.2. Strap Extender](#2-2-strap-extender)
 
-**[3. Todo List](#3-todo-list)**
+**[3. Todo List](#3-todo-list)**<br/>
 **[4. Code Conventions](#4-code-conventions)**<br/>
 
 
 ## 1. Overview
 
 **Description.** A small collection of parametric accessory parts for respirator masks. The parts have been designed for the [Polish military repirator MP-5](https://gasmaskandrespirator.fandom.com/wiki/MP-5) but, since they are fully parametric, can often be adapted to other models by just changing a few parameters. All parts have been designed with FDM 3D printing in mind.
+
+In Europe, surplus stocks of the Polish MP-5 respirator are widely available on eBay etc. in like-new quality for about 20 EUR. It is a relatively recent (~2006) model that is not inferior to new masks that cost 200 EUR and up. So for people looking for affordable high-grade respiratory protection, this is a good base. For example, for protection against the SARS-CoV-2 coronavirus or also for protection against fine dust, you would use this mask together with a new P3 R filter with RD40 mount, which is commercially available easily. I can't comment on the safety of the original CBRN filters that come with the mask.
 
 * **Installation.** Clone or download the repository, or download all the files. Open any `.scad` file in OpenSCAD. It will find the required libraries in `lib/`, if any.
 
@@ -38,13 +40,7 @@
 
     Special care was taken to create a design that results in a usable, fast preview mode in OpenSCAD, to allow an interactive development process. This was done by using a very fast thread generation library (`revolve2.scad`) and preferring extrusion to `difference()` operations, because it is much faster.
 
-* **Usage.** To use this design, add filter material from a surgical mask or similar in between the two parts, with a good amount of overlap so that it covers also the thread section. Screw the parts together. The filter material is meant to be captured in between the inner and outer thread, which holds it in place and tightens it against the filter holder.
-
-* **Customizing.** You need to use OpenSCAD for parametrizing this design. The Thingiverse customizer app does not work because it expects a single `.scad` file but this design also includes another file `revolve2.scad`.
-
-* **3D printing.** The initial parameters for the MP-5 compatible outward filter result in a part that is 3D printable without supports. As long as your chosen parameters for part radii and for `cone_section_truncate_angle` do not result in an overhang of >45° of the central cone section wall, the part is printable without supports. All threads use 45° flank angles for printability, and the clip ring adjusts itself to the inclination so that no overhang exceeds 45°.
-
-**Parameters.** All measures are in millimeters. All angles are in degrees.
+* **Customizing.** You need to use OpenSCAD for parametrizing this design. The Thingiverse customizer app does not work because it expects a single `.scad` file but this design also includes another file `revolve2.scad`. Available parameters (all measures in mm, all angles in degrees):
 
 * `quality`: Render quality. Influences segments per degree for circular shapes.
 * `scene_content`: What to show. Options are: "body only", "cap only", "both (cap opened)", "both (cap closed one turn)", "both (cap closed)".
@@ -61,6 +57,10 @@
 * `cap_turns`: Turns to close resp. open the cap.
 * `thread_gap`: Radial gap between inner and outer thread. Meant to accommodate the filter material.
 
+* **3D printing.** The initial parameters for the MP-5 compatible outward filter result in a part that is 3D printable without supports. As long as your chosen parameters for part radii and for `cone_section_truncate_angle` do not result in an overhang of >45° of the central cone section wall, the part is printable without supports. All threads use 45° flank angles for printability, and the clip ring adjusts itself to the inclination so that no overhang exceeds 45°.
+
+* **Building and assembly.** To use this design, add filter material from a surgical mask or similar in between the two parts, with a good amount of overlap so that it covers also the thread section. Screw the parts together. The filter material is meant to be captured in between the inner and outer thread, which holds it in place and tightens it against the filter holder.
+
 
 ### 2.1. Strap Extender
 
@@ -68,6 +68,36 @@
   <a href="doc/strap-extender-01.png?raw=true"><img src="doc/strap-extender-01.png?raw=true" width="40%"></a><br/>
   (Click to enlarge.)
 </p>
+
+* **Description.** A parametric, 3D printable OpenSCAD design for headstrap extension clips for the 
+[Polish military respirator MP-5](https://gasmaskandrespirator.fandom.com/wiki/MP-5). In effect, it allows to move the middle and upper headstrap mounts to the back, which will remove pressure from the straps if your head is too large to wear the mask comfortably. Since it is not easily possible to extend the straps themselves or manufacture longer ones, this is the simplest option to adapt the mask to a larger heads, as you can move the strap mountpoints up to about 50-60 mm per side to the back.
+
+**Customizing.** Available parameters (all measures in mm, all angles in degrees):
+
+* `quality`: Render quality. Influences segments per degree for circular shapes.
+* `show`: What to show in the preview or rendering. Options are: "upper", "lower", "both (apart)", "both (together)". Allows to render each part into an individual STL file.
+* `create_cross_section`: If to cut the model in half. Useful for debugging.
+* `extension_length`: How much to offset the strap mount relative to the original position. For comparison, the rubber band of the middle headstraps on the MP-5 respirator sizes 1-2 can be extended by about 90 mm per side at the most.
+
+* **Building and assembly.** 
+
+    1. To use this design in OpenSCAD, you also need to install the [Round Anything library](https://github.com/Irev-Dev/Round-Anything/).
+
+    2. Customize the part in the OpenSCAD customizer by choosing the extension length.
+
+    3. Print the upper part and lower part twice each. I used ABS with 100% infill.
+
+    4. Remove the original middle or upper headstraps. The design does not work for extending the lower headstraps.
+
+    5. Remove the triangular clip around the mask's attachment point for the headstrap. It will not break when bending it, as it's a strange, very tough plastic. But you have to use quite some force to pull and twist the clips off.
+
+    6. Hook the lower extension part with its slot around the mask's attachment point.
+
+    7. Insert the part that remains on the end of the headstrap into the other end of the extension part.
+    
+    8. Push the upper part of the extension onto the lower one.
+
+    9. Seal both parts of the strap extender together with a commonplace 4.8 mm wide cable tie, using the groove prepared for that.
 
 
 ## 3. Todo List
