@@ -30,43 +30,47 @@ In Europe, surplus stocks of the Polish MP-5 respirator are widely available on 
 ### 2.1. Outward Filter
 
 <p align="center">
-  <a href="doc/outward-filter-01.png?raw=true"><img src="doc/outward-filter-01.png?raw=true" width="40%"></a><br/>
-  (Click to enlarge.)
+    <a href="doc/outward-filter-photo-01.png?raw=true"><img src="doc/outward-filter-photo-01.png?raw=true" width="50%"></a>
+    <a href="doc/outward-filter-render-01.png?raw=true"><img src="doc/outward-filter-render-01.png?raw=true" width="30%"></a><br/>
+    (Click to enlarge.)
 </p>
 
 **Description.** A fully parametric, 3D printable filter holder for the exhale port of respirators. The intended use is outward protection of others from pathogens that may be exhaled by the respirator user. This makes the use of a valved respirator suitable in situations where masks with outward protection are required, such as in many public spaces during the COVID-19 pandemic.
 
-The initial parameter values create a version for the [Polish military respirator MP-5](https://gasmaskandrespirator.fandom.com/wiki/MP-5), using a clip-on mechanism. To adapt it to other respirators, you will have to design your own mounting mechanism, in addition to configuring the parameters. STL files for this version are [available on Thingiverse](https://www.thingiverse.com/thing:4639075), so you don't have to render them yourself with OpenSCAD.
+The initial parameter values (namely `clip_section_clip_r` = 24 mm) create a version for the [Polish military respirator MP-5](https://gasmaskandrespirator.fandom.com/wiki/MP-5), using a clip-on mechanism. The clips can be clipped into the circular recess where the original exhale port cover clips in, but it is better for an almost airtight connection to the mask to clip it at the very bottom instead. With `clip_section_clip_r` = 24 mm that will fit, but very tightly. You'll need quite some force to push the part into position, but nothing will break for a part printed in ABS with 100% infill. The advantage of the tight fit is that the outward filter will not rotate on its own during use.
+
+To adapt the outward filter to other respirators, you will have to design your own mounting mechanism, in addition to configuring the parameters.
 
 Special care was taken to create a design that results in a usable, fast preview mode in OpenSCAD, to allow an interactive development process. This was done by using a very fast thread generation library (`revolve2.scad`) and preferring extrusion to `difference()` operations, because it is much faster.
 
 **Customizing.** You need to use OpenSCAD for parametrizing this design. The Thingiverse customizer app does not work because it expects a single `.scad` file but this design also includes another file `revolve2.scad`. Available parameters (all measures in mm, all angles in degrees):
 
-* `quality`: Render quality. Influences segments per degree for circular shapes.
-* `scene_content`: What to show. Options are: "body only", "cap only", "both (cap opened)", "both (cap closed one turn)", "both (cap closed)".
-* `show_cross_section`: If to cut the model in half. Useful for debugging.
-* `wall_t`: Default wall thickness.
-* `clip_section_h`: Height of the cylindrical section containing the clip mount mechanism.
-* `cone_section_truncate_angle`: Angle between the two circles forming the conical section.
-* `thread_section_h`: Height of the threaded section of the filter holder.
-* `grid_h`: Height of the grid pattern's "lines".
-* `clip_section_clip_r`: Radius between clip elements of the clip-mounted section, compatible with the respirator's exhale port cover clip-on mechanism.
-* `clip_section_inner_r`: Inner radius of the clip-mounted section for the respirator's exhale port cover.
-* `thread_section_inner_r`: Inside radius in the threaded section.
-* `cap_outer_r`: Outside radius of the cap.
-* `cap_turns`: Turns to close resp. open the cap.
-* `thread_gap`: Radial gap between inner and outer thread. Meant to accommodate the filter material.
+* **`quality`:** Render quality. Influences segments per degree for circular shapes.
+* **`scene_content`:** What to show. Options are: "body only", "cap only", "both (cap opened)", "both (cap closed one turn)", "both (cap closed)".
+* **`show_cross_section`:** If to cut the model in half. Useful for debugging.
+* **`wall_t`:** Default wall thickness.
+* **`clip_section_h`:** Height of the cylindrical section containing the clip mount mechanism.
+* **`cone_section_truncate_angle`:** Angle between the two circles forming the conical section.
+* **`thread_section_h`:** Height of the threaded section of the filter holder.
+* **`grid_h`:** Height of the grid pattern's "lines".
+* **`clip_section_clip_r`:** Radius between clip elements of the clip-mounted section, compatible with the respirator's exhale port cover clip-on mechanism.
+* **`clip_section_inner_r`:** Inner radius of the clip-mounted section for the respirator's exhale port cover.
+* **`thread_section_inner_r`:** Inside radius in the threaded section.
+* **`cap_outer_r`:** Outside radius of the cap.
+* **`cap_turns`:** Turns to close resp. open the cap.
+* **`thread_gap`:** Radial gap between inner and outer thread. Meant to accommodate the filter material.
 
 **3D printing.** The initial parameters for the MP-5 compatible outward filter result in a part that is 3D printable without supports. As long as your chosen parameters for part radii and for `cone_section_truncate_angle` do not result in an overhang of >45° of the central cone section wall, the part is printable without supports. All threads use 45° flank angles for printability, and the clip ring adjusts itself to the inclination so that no overhang exceeds 45°.
 
 **Building and assembly.** To use this design, add filter material from a surgical mask or similar in between the two parts, with a good amount of overlap so that it covers also the thread section. Screw the parts together. The filter material is meant to be captured in between the inner and outer thread, which holds it in place and tightens it against the filter holder.
 
 
-### 2.1. Strap Extender
+### 2.2. Strap Extender
 
 <p align="center">
-  <a href="doc/strap-extender-01.png?raw=true"><img src="doc/strap-extender-01.png?raw=true" width="40%"></a><br/>
-  (Click to enlarge.)
+    <a href="doc/strap-extender-photo-01.png?raw=true"><img src="doc/strap-extender-photo-01.png?raw=true" width="50%"></a>
+    <a href="doc/strap-extender-render-01.png?raw=true"><img src="doc/strap-extender-render-01.png?raw=true" width="30%"></a><br/>
+    (Click to enlarge.)
 </p>
 
 **Description.** A parametric, 3D printable OpenSCAD design for headstrap extension clips for the 
@@ -74,10 +78,10 @@ Special care was taken to create a design that results in a usable, fast preview
 
 **Customizing.** Available parameters (all measures in mm, all angles in degrees):
 
-* `quality`: Render quality. Influences segments per degree for circular shapes.
-* `show`: What to show in the preview or rendering. Options are: "upper", "lower", "both (apart)", "both (together)". Allows to render each part into an individual STL file.
-* `create_cross_section`: If to cut the model in half. Useful for debugging.
-* `extension_length`: How much to offset the strap mount relative to the original position. For comparison, the rubber band of the middle headstraps on the MP-5 respirator sizes 1-2 can be extended by about 90 mm per side at the most.
+* **`quality`:** Render quality. Influences segments per degree for circular shapes.
+* **`show`:** What to show in the preview or rendering. Options are: "upper", "lower", "both (apart)", "both (together)". Allows to render each part into an individual STL file.
+* **`create_cross_section`:** If to cut the model in half. Useful for debugging.
+* **`extension_length`:** How much to offset the strap mount relative to the original position. For comparison, the rubber band of the middle headstraps on the MP-5 respirator sizes 1-2 can be extended by about 90 mm per side at the most.
 
 **Building and assembly.** 
 
@@ -104,9 +108,10 @@ Special care was taken to create a design that results in a usable, fast preview
 
 Only about todo items for the repository as a whole. Todo items for individual parts are contained in their `.scad` files and marked `@todo`.
 
-* Create versions that can be used with the Thingiverse customizer, by embedding the libraries (like `revolve2.scad`) into the main `.scad` files. This should probably be done by a build script.
+* Create versions that can be used with the Thingiverse customizer, by embedding the libraries (like `revolve2.scad`) into the main `.scad` files. This should probably be done by a build script. And there should be a build directory for its output.
 * Generate the documentation in HTML format using Doxygen. Since OpenSCAD is quite similar to C syntax, this should be possible relatively easily.
-* Create a way to re-generate the illustrations in `doc/*.png` automatically using a build script. Should also include some image processing to create versions as needed for Thingiverse thumbnails (4:3, smaller size) and other purposes.
+* Create a clear separation between original and derived files in `doc/`. In this case, derived files have to be included into the Github repo to be visible in `README.md`, but it should be clear that they are redundant. For example, use two directories `doc/` and `doc-build/`.
+* Create a way to re-generate the illustrations in `doc/` automatically using a build script. Should also include some image processing to create versions as needed for Thingiverse thumbnails (4:3, smaller size) and other purposes.
 
 
 ## 4. Code Conventions

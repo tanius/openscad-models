@@ -1,5 +1,4 @@
-/** @brief An extension for any of the six clips on a Polish MP-5 military gas mask / respirator. 
-  *   Allows to wear the mask comfortably with larger heads by reducing the strap pressure.
+/** @brief An extension for any of the six strap clips on a Polish MP-5 military respirator.
   * 
   * @detail Each extension consists of an inner and an outer part (as seen when wearing the mask). 
   *   The inner part has a button hole shape to hook into the attachment point on the mask and a 
@@ -161,7 +160,7 @@ function d(id) = (
 // ======================================================================
 
 /** Calculates the length of the tip cut off by adding a radius to a corner. 
-  * Currently unused; can be moved to a utility library. */
+  * @todo Since this is currently unused, move it to a utility library. */
 function radius_cutoff(angle, r) = (
     let(
         // Source: Round-Anything API docs, at "See bellow for an even deeper dive", see 
@@ -344,8 +343,8 @@ module maskmount_stem(h = d("maskmount stem h")) {
 
 /** @brief U-shaped cutter for a cable tie channel.
   * @param d_offset  y axis position of the start of the cable tie channel. Defaults to 0.
-  * @cut_dw  Channel cut depth in the x direction.
-  * @cut_dh  Channel cut depth in the z direction.
+  * @param cut_dw  Channel cut depth in the x direction.
+  * @param cut_dh  Channel cut depth in the z direction.
   */
 module cabletie_cutter(d_offset = 0, cut_dw = d("extension cabletie cut t"), cut_dh = d("extension cabletie cut t")) {
     edge_r = d("extension min r");
@@ -355,6 +354,7 @@ module cabletie_cutter(d_offset = 0, cut_dw = d("extension cabletie cut t"), cut
     cutter_h = d("extension w"); // Larger than needed, just to be generous.
 
     // Point, as offset from the previous.   // Point with added radius component.
+    // @todo Convert to the new scheme of defining a single vectorof delta points.
     p1 =      [-nothing, -nothing];          p1r = concat(p1, 0);
     p2 = p1 + [cut_w, 0];                    p2r = concat(p2, 0);
     p3 = p2 + [0, cutter_h + nothing];       p3r = concat(p3, 0);
@@ -383,6 +383,7 @@ module upper_extension_base() {
     ramp_offset_d = d("strapmount offset d") + d("strapmount ramp offset d"); // Now from origin.
 
     // Main outline in the yz plane. Format: [y, z, radius].
+    // @todo Convert this to the new scheme of delta points.
     // @todo (max_h - min_h) * 0.8 is a visually determined value to keep enough material above 
     //   the maskmount cap cutout. Calculate this more precisely as a minimum thickness of material 
     //   depending on the cap cutout depth. And use the d("…") for this parameter.
