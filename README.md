@@ -30,8 +30,8 @@ In Europe, surplus stocks of the Polish MP-5 respirator are widely available on 
 ### 2.1. Outward Filter
 
 <p align="center">
-    <a href="doc/outward-filter-photo-01.png?raw=true"><img src="doc/outward-filter-photo-01.png?raw=true" width="50%"></a>
-    <a href="doc/outward-filter-render-01.png?raw=true"><img src="doc/outward-filter-render-01.png?raw=true" width="30%"></a><br/>
+    <a href="doc/outward-filter-photo-01.jpg?raw=true"><img src="doc/outward-filter-photo-01.jpg?raw=true" width="40%"></a>
+    <a href="doc/outward-filter-render-01.png?raw=true"><img src="doc/outward-filter-render-01.png?raw=true" width="40%"></a><br/>
     (Click to enlarge.)
 </p>
 
@@ -68,8 +68,8 @@ Special care was taken to create a design that results in a usable, fast preview
 ### 2.2. Strap Extender
 
 <p align="center">
-    <a href="doc/strap-extender-photo-01.png?raw=true"><img src="doc/strap-extender-photo-01.png?raw=true" width="50%"></a>
-    <a href="doc/strap-extender-render-01.png?raw=true"><img src="doc/strap-extender-render-01.png?raw=true" width="30%"></a><br/>
+    <a href="doc/strap-extender-photo-01.jpg?raw=true"><img src="doc/strap-extender-photo-01.jpg?raw=true" width="40%"></a>
+    <a href="doc/strap-extender-render-01.png?raw=true"><img src="doc/strap-extender-render-01.png?raw=true" width="40%"></a><br/>
     (Click to enlarge.)
 </p>
 
