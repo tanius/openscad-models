@@ -3,8 +3,8 @@
 **[1. Overview](#1-overview)**<br/>
 **[2. Parts](#2-parts)**
 
-* [2.1. Outward Filter](#2-1-outward-filter)
-* [2.2. Strap Extender](#2-2-strap-extender)
+* [2.1. Outward Filter](#21-outward-filter)
+* [2.2. Strap Extender](#22-strap-extender)
 
 **[3. Todo List](#3-todo-list)**<br/>
 **[4. Code Conventions](#4-code-conventions)**<br/>
@@ -108,10 +108,12 @@ Special care was taken to create a design that results in a usable, fast preview
 
 Only about todo items for the repository as a whole. Todo items for individual parts are contained in their `.scad` files and marked `@todo`.
 
-* Create versions that can be used with the Thingiverse customizer, by embedding the libraries (like `revolve2.scad`) into the main `.scad` files. This should probably be done by a build script. And there should be a build directory for its output.
-* Generate the documentation in HTML format using Doxygen. Since OpenSCAD is quite similar to C syntax, this should be possible relatively easily.
+* Add STL files of the designs (using the default parameters and low quality) to the doc/ directory.
+* Link the Github 3D view of the STL files from corresponding images embedded in `README.md`, and add a note "(Click to view in 3D.)".
 * Create a clear separation between original and derived files in `doc/`. In this case, derived files have to be included into the Github repo to be visible in `README.md`, but it should be clear that they are redundant. For example, use two directories `doc/` and `doc-build/`.
 * Create a way to re-generate the illustrations in `doc/` automatically using a build script. Should also include some image processing to create versions as needed for Thingiverse thumbnails (4:3, smaller size) and other purposes.
+* Create versions that can be used with the Thingiverse customizer, by embedding the libraries (like `revolve2.scad`) into the main `.scad` files. This should probably be done by a build script. And there should be a build directory for its output.
+* Generate the documentation in HTML format using Doxygen. Since OpenSCAD is quite similar to C syntax, this should be possible relatively easily.
 
 
 ## 4. Code Conventions

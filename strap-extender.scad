@@ -156,44 +156,27 @@ function d(id) = (
 );
 
 
-// (4) REUSABLES
-// ======================================================================
-
-/** Calculates the length of the tip cut off by adding a radius to a corner. 
-  * @todo Since this is currently unused, move it to a utility library. */
-function radius_cutoff(angle, r) = (
-    let(
-        // Source: Round-Anything API docs, at "See bellow for an even deeper dive", see 
-        // https://kurthutten.com/blog/round-anything-api/
-        tangent_length = r / tan(angle / 2),
-
-        // Now we have a SAS triangle made from tangent_length an r, with a 90° angle 
-        // between them. That lets us calculate the third side, which is the distance 
-        // between the circle's center and the tip that is being cut off. Formula (with simplification for a 90° angle):
-        // https://en.wikipedia.org/wiki/Solution_of_triangles#Two_sides_and_the_included_angle_given_(SAS)
-        center_to_tip = sqrt(pow(r, 2) + pow(tangent_length, 2)),
-
-        radius_cutoff = center_to_tip - r
-    )
-    radius_cutoff
-);
-
-
-// (5) PARTS
+// (4) PARTS
 // ======================================================================
 
 /** @brief Blocks that capture the outline of the strapmount part. One rectangular block that goes 
   *   through the strapmount hole, and two triangular blocks. Since this is a special-purpose part, 
   *   it is already positioned for mounting in *_extension_base().
+  * @param triangles  Whether to generate the triangle blocks. Needed along the left and right edge 
+  *   of the upper strap extender half.
   * @todo Make the implementation more compact by using delta lists for the points and only having 
   *   one list that is modified by mirroring and extending.
   */
-module strapmount_capture_blocks(extend_triangles = false) {
+module strapmount_capture_blocks(triangles = false) {
+    r = d("extension min r"); // Default edge radius.
+
     hole_w = d("strapmount hole w") - 2 * d("gap");
     hole_d = d("strapmount hole d") - 2 * d("gap");
-    sinkin_t = d("extension edge r"); // Measure to overcome the base shape edge radius.
-    block_h = d("strapmount max h") / 2; // Block height above the extension base shape.
-    r = d("extension min r"); // Default edge radius here.
+    hole_block_h = d("strapmount max h") / 2; // Block height above the extension base shape.
+
+    triangle_sinkin_y = 2 * d("extension edge r"); // To overcome the edge radii in zy direction.
+    triangle_sinkin_z = d("extension edge r"); // To overcome the edge radii in z direction.
+    triangle_h = d("strapmount max h") + triangle_sinkin_z;
 
     hole_block = [
         [     0,      0,                             r],
@@ -202,29 +185,18 @@ module strapmount_capture_blocks(extend_triangles = false) {
         [     0, hole_d, d("strapmount hole corner r")],
     ];
 
-    // No d("gap") is removed from the inner edges of the triangle blocks, as an insert only needs 
-    // one gap size as tolerance, here already provided around hole_block above.
+    // @todo Remove d("gap") from the inner edges of the triangle blocks.
     left_triangle = [
-        [d("strapmount triangle w"),                          0, r],
-        [                         0, d("strapmount triangle d"), r],
-        [                         0,                          0, r]
-    ];
-    left_extended_triangle = [
-        [d("strapmount triangle w"), -sinkin_t, r],
+        [d("strapmount triangle w"), -triangle_sinkin_y, r],
         [d("strapmount triangle w"), 0, r],
         [                         0, d("strapmount triangle d"), r],
-        [                         0, -sinkin_t, 0]
+        [                         0, -triangle_sinkin_y, 0]
     ];
     right_triangle = [
-        [d("strapmount triangle w"),                          0, r],
-        [d("strapmount triangle w"), d("strapmount triangle d"), r],
-        [                         0,                          0, r]
-    ];
-    right_extended_triangle = [
-        [d("strapmount triangle w"), -sinkin_t, 0],
+        [d("strapmount triangle w"), -triangle_sinkin_y, 0],
         [d("strapmount triangle w"), d("strapmount triangle d"), r],
         [                         0, 0, r],
-        [                         0, -sinkin_t, r]
+        [                         0, -triangle_sinkin_y, r]
     ];
 
     // Central hole capture block.
@@ -233,17 +205,21 @@ module strapmount_capture_blocks(extend_triangles = false) {
         d("strapmount offset d") + d("strapmount hole offset d") + d("gap"),
         d("extension h")
     ])
-        polyRoundExtrude(hole_block, length = block_h, r1 = r, r2 = -r, fn = 8);
+        polyRoundExtrude(hole_block, length = hole_block_h, r1 = r, r2 = -r, fn = 8);
 
-    // Left triangle.
-    translate([0, d("strapmount offset d"), d("extension h") - sinkin_t])
-        polyRoundExtrude(extend_triangles ? left_extended_triangle : left_triangle, 
-            length = block_h + sinkin_t, r1 = r, r2 = 0, fn = 8);
+    // Since polyRoundExtrude() generates the upper and lower edge radii segments by layer height and 
+    // not as angular sections, the segments of these radii are asymmetrical. Combining a vertically 
+    // and horizontally extruded part leads to edges that are not completely flush with each other. 
+    // We compensate partually with a high fn here, and otherwise don't care.
+    if (triangles) {
+        // Left triangle.
+        translate([0, d("strapmount offset d"), d("extension h") - triangle_sinkin_z])
+            polyRoundExtrude(left_triangle, length = triangle_h, r1 = d("extension edge r"), r2 = 0, fn = 20);
 
-    // Right triangle.
-    translate([d("extension w") - d("strapmount triangle w"), d("strapmount offset d"), d("extension h") - sinkin_t])
-        polyRoundExtrude(extend_triangles ? right_extended_triangle : right_triangle, 
-            length = block_h + sinkin_t, r1 = r, r2 = 0, fn = 8);
+        // Right triangle.
+        translate([d("extension w") - d("strapmount triangle w"), d("strapmount offset d"), d("extension h") - triangle_sinkin_z])
+            polyRoundExtrude(right_triangle, length = triangle_h, r1 = d("extension edge r"), r2 = 0, fn = 20);
+    }
 }
 
 /** @brief Cutter element for the slot to go over the maskmount cap when attaching to the mask.
@@ -419,7 +395,7 @@ module upper_extension() {
                 upper_extension_base();
 
                 // Block to attach to the hole in the mask's strap mount part.    
-                strapmount_capture_blocks(extend_triangles = true);
+                strapmount_capture_blocks(triangles = true);
 
                 // Add a solid block shaped to block the slot in the lower part.
                 // It will be cut to size later, so that not everything is being blocked.
@@ -495,7 +471,7 @@ module lower_extension() {
 }
 
 
-// (6) SCENE
+// (5) SCENE
 // ======================================================================
 
 module scene() {
