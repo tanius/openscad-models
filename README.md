@@ -109,11 +109,40 @@ Special care was taken to create a design that results in a usable, fast preview
 Only about todo items for the repository as a whole. Todo items for individual parts are contained in their `.scad` files and marked `@todo`.
 
 * Add STL files of the designs (using the default parameters and low quality) to the doc/ directory.
+
 * Link the Github 3D view of the STL files from corresponding images embedded in `README.md`, and add a note "(Click to view in 3D.)".
+
 * Create a clear separation between original and derived files in `doc/`. In this case, derived files have to be included into the Github repo to be visible in `README.md`, but it should be clear that they are redundant. For example, use two directories `doc/` and `doc-build/`.
+
 * Create a way to re-generate the illustrations in `doc/` automatically using a build script. Should also include some image processing to create versions as needed for Thingiverse thumbnails (4:3, smaller size) and other purposes.
+
 * Create versions that can be used with the Thingiverse customizer, by embedding the libraries (like `revolve2.scad`) into the main `.scad` files. This should probably be done by a build script. And there should be a build directory for its output.
+
 * Generate the documentation in HTML format using Doxygen. Since OpenSCAD is quite similar to C syntax, this should be possible relatively easily.
+
+* Add a GoPro mount accessory part that can be mounted to the flap over the eye section.
+
+* Add a printable complete RD40 filter. It should allow to use FFP2 / FFP3 masks or surgical mask material as the filter material. Surgical mask material can be captured in the thread as done for the outward filter.
+
+* Add an eyescreen protector. Useful when using the mask when doing angle grinding or other activities that generate sparks.
+
+* Add a small container for vaseline, which can be used to achieve a better fit. It should have an option to be mounted to the drink port, as that will usually not be needed. Even better, a small chaulk gun type of device might be more comfortable to apply the vaseline to the mask evenly.
+
+* Add adapters to various drinking bottles and straws, to be used with the integrated drinking port.
+
+* Add a soft loop with cylindrical cross-section that can be glued into the inner mask to adapt it to ones own face outline. For that, it should have a hole inside to insert a copper wire.
+
+* Add a spike ring that can be added to the bottom of any filter (if printed with the right measure for that filter). It allows to store the mask standing on its filter while still allowing air to reach the filter surface so that it can dry and so that any germs are inactivated by oxygen over the course of a few days.
+
+* Add a glasses holder that can be mounted inside the mask.
+
+* Add a sewing template for a black cover that can be pulled over the filter, to extend its lifetime by protecting it from being soiled during usage.
+
+* Add a beard cutter template, to mark and shave the 30 mm wide stripe around the face that constitutes the sealing surface.
+
+* Add fit testing equipment. However, when using the vaseline trick, quantitative fit testing is not really needed.
+
+* Add printable spare parts (hooks, loops, port covers, valves). If larger parts break, one would instead simply buy another mask for 20 EUR.
 
 
 ## 4. Code Conventions

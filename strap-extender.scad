@@ -12,17 +12,24 @@
   *   strap mountpoint in the back, both attached to a flat table. The "natural orientation" in use 
   *   is not relevant, as we don't draw the part in use.
   *
-  * @todo Add a README file, and fill in the content published on Thingiverse.
-  * @todo Place the triangular pieces for the edges of the strap connector completely on the upper 
-  *   part, as they are stabilized by the attached wall there. They would just break off at the 
-  *   lower part.
   * @todo Change the format of point sets to define outlines so that the points are calculated from 
   *   the previous point plus a vector, as done once in this file already. This is more readable, and 
   *   also less redundanct as a measure is only added once and then affects all points following it.
   *   But, even better is to define the points offsets as a vector (also including the radius as third 
   *   component) and then to use the "var = [for …]" list comprehension to convert to a new vector of 
   *   polygon corner points by adding the first and second components only to the previous point.
-  * @todo Add a cutout for the head of the cable tie.
+  * @todo Make the mask mount end of the upper and lower extension parts use a semi-circular 
+  *   outline when seen from the top, plus a 45° chamfer at the top. This is more aligned with the 
+  *   shape of the mask, where everything is round or curved.
+  * @todo Use a smaller (3-4 mm width) cabletie. This is sufficient, as the load on the cable tie 
+  *   is very low. It keeps the cutouts for the cable tie and its head smaller, so the part stronger.
+  * @todo Add a cutout for the head of the cable tie to the side of the upper extension part. The 
+  *   cabletie hea can be completelye (or nearly so) hidden, but the cabletie has to then go first 
+  *   through a hole in the lower extension part, then make its round as before.
+  * @todo To make the part stronger, maybe it is better to put both parts of the rectangular capture 
+  *   block on the lower half of the extender and to increase the height of that block so that it 
+  *   goes through the maskmount clip and into a recess in the upper half of the extender. But we'd 
+  *   probably need tests to find out which solution is more durable.
   * @todo To better protect the extension against turning around on the maskmount, it is better 
   *   to give the upper extension a hook-shaped part to reach into the lower extension and below the 
   *   maskmount cap. To facilitate this, the upper part must either be able to slide back and forth 
@@ -482,6 +489,8 @@ module scene() {
         else if (show == "lower")
             lower_extension();
 
+        // @todo Combine the code from the two "both (…)" cases, so that the distance between 
+        //   the two is calculated based on the case, and all other code is shared.
         else if (show == "both (apart)") {
             union() {
                 translate([0, 0, 25])
