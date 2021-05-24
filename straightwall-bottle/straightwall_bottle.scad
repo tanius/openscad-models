@@ -33,7 +33,7 @@
 //    https://www.thingiverse.com/thing:455426
 //    licenced under Creative Commons Attribution (CC-BY)
 // 
-// More documentation:
+// Detailed documentation:
 //    See file README.md.
 
 //
