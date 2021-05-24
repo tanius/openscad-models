@@ -1,0 +1,65 @@
+{
+    "parameterSets": {
+        "example 1": {
+            "SECTION_4_HIDDEN": "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
+            "arc_height": "30",
+            "height": "100",
+            "make_hollow": "true",
+            "nothing": "0.01",
+            "quality": "rendering",
+            "show_cross_section": "true",
+            "top_radius": "120",
+            "wall_thickness": "10"
+        },
+        "example 2": {
+            "SECTION_4_HIDDEN": "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
+            "arc_height": "50",
+            "height": "300",
+            "make_hollow": "false",
+            "nothing": "0.01",
+            "quality": "rendering",
+            "show_cross_section": "false",
+            "top_radius": "0",
+            "wall_thickness": "1"
+        },
+        "example 3": {
+            "SECTION_4_HIDDEN": "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
+            "arc_height": "50",
+            "height": "100",
+            "make_hollow": "true",
+            "nothing": "0.01",
+            "quality": "rendering",
+            "show_cross_section": "true",
+            "top_radius": "400",
+            "wall_thickness": "10"
+        },
+        "example 4": {
+            "SECTION_4_HIDDEN": "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
+            "arc_height": "40",
+            "height": "300",
+            "make_hollow": "true",
+            "nothing": "0.01",
+            "quality": "rendering",
+            "show_cross_section": "true",
+            "top_radius": "80",
+            "wall_thickness": "10"
+        },
+        "example 5": {
+            "SECTION_4_HIDDEN": "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
+            "arc_height": "150",
+            "height": "300",
+            "make_hollow": "true",
+            "nothing": "0.01",
+            "quality": "rendering",
+            "show_cross_section": "true",
+            "top_radius": "0",
+            "wall_thickness": "80"
+        }
+    },
+    "parameterSets": "",
+    "fileFormatVersion": "1",
+    "parameterSets": "",
+    "parameterSets": "",
+    "parameterSets": "",
+    "parameterSets": ""
+}

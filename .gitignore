@@ -1,1 +1,2 @@
-/experiments/
+# Ignore Cura project files (for 3D printing a design to a specific printer).
+*.3mf
