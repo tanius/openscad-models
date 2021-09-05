@@ -114,3 +114,25 @@ module asymmetrical_fillet(w, d, h) {
                 cylinder(h = h, r = w);
     }
 }
+
+
+/** @brief A countersunk hole for screws. Positioned at the origin, extending towards -z, head at top.
+  * @param r1 Screw hole diameter.
+  * @param h1 Screwhole depth including the space for the screw head.
+  * @param r2 Screw head diameter.
+  * @param h2 Screw head depth, that is, depth of the countersunk.
+  * 
+  * @credits caggius, at https://forum.openscad.org/Counter-sinking-screw-holes-tp32633p32637.html
+  */
+module countersunk_hole(dia1, h1, dia2, h2) {
+      r1 = 0.5 * dia1;
+      r2 = 0.5 * dia2;
+
+       // Screw shaft.
+      translate([0, 0, -h1])
+          cylinder(r = r1, h = h1);
+
+       // Screw head.
+      translate([0, 0, -h2])
+          cylinder(r1 = r1, r2 = r2, h = h2);
+}

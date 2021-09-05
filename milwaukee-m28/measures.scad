@@ -56,6 +56,8 @@ function m(id, part = $part) = (
     part == "socket" && id == "ridge offset d" ? 21.4 :
     part == "socket" && id == "ridge arcs d" ? 1.6 : // Unused. We simplify to a semi-circle arc via a radius the height edges, see below.
     part == "socket" && id == "ridge h edges r" ? m(part = "socket", "ridge w") / 2 : // Maximum possible corner radius, yielding a semi-circle at the ends.
+    part == "socket"  && id == "ridge open space behind d" ? 
+        m(part = "socket", "d") - m(part = "socket", "ridge offset d") - m(part = "socket", "ridge d") - m(part = "socket", "backwall d") :
     
     // Grooves on the left and right to mount the battery pack mechanically. Closer to the device than all other grooves.
     part == "socket" && id == "mount grooves w" ? 3.7 :
@@ -105,8 +107,14 @@ function m(id, part = $part) = (
     part == "device" && id == "back overhang d" ? 1.5 :
     part == "device" && id == "side overhang w" ? (m(part = "device", "base w") - m(part = "socket", "w")) / 2 :
 
-    // Measures on the battery isolator, a blind socket to protect battery terminals.
-    part == "isolator" && id == "cover h" ? 4 :
+    // Measures on the battery isolator, a blind socket to protect battery terminals and a battery wall mount.
+    part == "isolator" && id == "cover h" ? 5 :
+    part == "isolator" && id == "mountholes dia" ? 5 : // For Spax screw 5.0×….
+    part == "isolator" && id == "mountholes head dia" ? 10.6 : // For Spax screw 5.0×… head. It's 10.0, but making sure it is fully countersunk.
+    part == "isolator" && id == "mountholes offset w" ? 0.5 * m(part = "device", "base w") :
+    part == "isolator" && id == "mounthole 1 (front) offset d" ? 12 :
+    part == "isolator" && id == "mounthole 2 (back) offset d" ? 
+        m(part = "device", "base d") - m(part = "device", "back overhang d") - m(part = "socket", "backwall d") - 0.5 * m(part = "socket", "ridge open space behind d") :
 
     undef
 );
