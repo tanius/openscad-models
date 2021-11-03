@@ -1,6 +1,4 @@
-/* 
-
-# Additional documentation for "Straightwall Bottle"
+# Straightwall Bottle
 
 
 ## 1. Basic Documentation
@@ -91,48 +89,3 @@ http://dkprojects.net/openscad-threads/ ).
 
 * Other TODO items as found in the code.
  
-
-## 4. Code Conventions
-
-The following code conventions are used in the OpenSCAD code that I wrote (so, not in the library).
-
-* **Directions.** Left/right, top/bottom and front/back are as used naturally when looking at the x/z plane into positive y direction.
-
-* **Thing orientation.** Place part in natural orientation (means, so that the above directions apply). It may have to be rotated for printing.
-
-* **Thing position.** The thing should be in the first octant ("only use positive coordinates"). Because that's the only practical universal convention for the origin, and it makes coordinates and part measurements idential. 
-
-    Exception: rotation symmetric parts should be centered around the positive half of one axis. This makes coordinates and radius related part measurements identical. The axis to center around is chosen depending on the natural orientation of the part (see above).
-    
-* **Units.** Millimeters and 0-360 degrees only.
-
-* **Abbreviations.** In variable names, the following abbreviations are used in suffixes and infixes:
-    * w = width (local x coordinate)
-    * d = depth (local y coordinate)
-    * h = height (local z coordinate)
-    * r = radius
-    * t = wall thickness (can be any local coordinate; can be whole part thickness if part is a wall)
-    
-* **Variable names.** Use one-word names for parts. This prevents complicated multi-part variable names that start with the same word and then branch out. Call the whole geometry "thing" (inspired by Thiniverse).
-
-* **Variable scope.** Code meant to be re-usable must receive all input as module / function parameters. Other code may also access all global variables defined at the beginning of the .scad file (incl. those by OpenSCAD customizer). These are by convention never changed after initial assignment. This makes them constants, safe to access from global scope without side effects. And in terms of software architecture, they are like the private variables of a an object, which are also used "globally" inside the class' code.
-
-* **Code formatting.** When chaining transformations, use {…} only when it applies to more than one commands. But always indent the commands that a chaining transformation applies to.
-
-* **Part initial position.** Modules should create their parts in the first octant, with the bounding box starting at the origin. Means, use "center = false" when creating primitives. This leads to more intuitive translate() calls, avoiding the need to divide the whole calculation by two as in the case when objects start centered.
-
-* **Part initial rotation.** If the part is re-usable beyond the current thing, create it as if mounting it to the x/y plane. If the part is not re-usable, create it in the rotation needed for mounting it to the rest of the thing, because then that is the natural and only useful rotation of the part.
-
-* **Part creation in x/y plane.** Draw it so that as few rotations as possible bring it into its final alignment. For that, imagine the reverse: how to rotate the final object's part into the x/y plane.
-
-* **Polygon points.** Start with the one closes to the origin and then move CCW (mathematical spin direction, which is the shortest rotation transforming x to y axis).
-
-* **Module content.** Create one part per module, without a color and without moving or rotating it for assembly.
-
-* **Library choice.** Try to use the MCAD library as much as possible. It is the only library bundled by the OpenSCAD installer, so it can always be relied on without requiring the user to install anything first.
-
-* **Avoiding z-fighting.** For difference() by making the cutout larger, and avoid z-fighting for union() by making the parts overlap. Use the variable "nothing=0.01" for that (see below). Since union() z-fighting does not hide anything in preview mode and generates no errors when rendering, it is also ok to just hide these z-fighting artifacts visually by giving parts the same color.
-
-* **Angles for printability.** Measure angles against vertical when discussing printability. Because the 45° rule for overhangs does so ("angles must be ≤45° to be printable on FDM printers").
-
-*/
