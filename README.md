@@ -1,4 +1,4 @@
-# README
+# OpenSCAD Models
 
 
 ## 1. Overview
@@ -23,14 +23,14 @@ Each folder contains one design, or a collection of closely related designs. By 
 
 * **knob-factory.** A parametric design that allows to generate all kinds of knobs.
 
-* **milwaukee-m28.** A small collection of 3D printable OpenSCAD designs for the Milwaukee M28 system of battery powertools, containing a battery socket and a battery isolator / blind socket that can also be used as a wall mount. For details, see the [milwaukee-m28 README](blob/master/milwaukee-m28/README.md).
+* **milwaukee-m28.** A small collection of 3D printable OpenSCAD designs for the Milwaukee M28 system of battery powertools, containing a battery socket and a battery isolator / blind socket that can also be used as a wall mount. For details, see the [milwaukee-m28 README](milwaukee-m28/README.md).
 
 * **openscad-experiments.** Various tests and experiments with OpenSCAD, plus some reusable code.
 
 * **respirator-accessory.** Two parametric accessories for respirator masks: an outward filter holder to make a respirator suitable for outward protection in a repiratory disease epidemic or pandemic; and a strap extension to adjust the length of respirator head straps. Both designs are made for the French Military CBRN mask type ARF-A
-or type ANP VP F1 and the Polish Military ABC mask type MP-5, but the first one can be easily adapted to other respirators with a cylindrical output port. For details, see the [respirator-accessory README](blob/master/respirator-accessory/README.md).
+or type ANP VP F1 and the Polish Military ABC mask type MP-5, but the first one can be easily adapted to other respirators with a cylindrical output port. For details, see the [respirator-accessory README](respirator-accessory/README.md).
 
-* **straightwall-bottle.** A parametric, 3D printable screw-top bottle with straight outer walls. For details, see the [straightwall-bottle README](blob/master/straightwall-bottle/README.md).
+* **straightwall-bottle.** A parametric, 3D printable screw-top bottle with straight outer walls. For details, see the [straightwall-bottle README](straightwall-bottle/README.md).
 
 * **truncated-toroid.** A parametric module to generate a truncated toroid shape in OpenSCAD.
 
