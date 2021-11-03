@@ -2,14 +2,6 @@
 
 **[1. Overview](#1-overview)**<br/>
 **[2. Parts](#2-parts)**
-
-- [Respirator Accessory](#respirator-accessory)
-  - [1. Overview](#1-overview)
-  - [2. Parts](#2-parts)
-    - [2.1. Outward Filter](#21-outward-filter)
-    - [2.2. Strap Extender](#22-strap-extender)
-  - [3. Todo List](#3-todo-list)
-
 **[3. Todo List](#3-todo-list)**<br/>
 **[4. Code Conventions](#4-code-conventions)**<br/>
 
