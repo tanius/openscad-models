@@ -1,7 +1,7 @@
 # Respirator Accessory
 
 **[1. Overview](#1-overview)**<br/>
-**[2. Parts](#2-parts)**
+**[2. Parts](#2-parts)**<br/>
 **[3. Todo List](#3-todo-list)**<br/>
 **[4. Code Conventions](#4-code-conventions)**<br/>
 
