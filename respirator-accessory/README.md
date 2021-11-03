@@ -34,8 +34,8 @@ In Europe, surplus stocks of the French ARF-A respirator are widely available on
 ### 2.1. Outward Filter
 
 <p align="center">
-    <a href="outward-filter.1.jpg?raw=true"><img src="doc/outward-filter.1.jpg?raw=true" width="40%"></a>
-    <a href="outward-filter.2.png?raw=true"><img src="doc/outward-filter.2.png?raw=true" width="40%"></a><br/>
+    <a href="outward-filter.1.jpg?raw=true"><img src="outward-filter.1.jpg?raw=true" width="40%"></a>
+    <a href="outward-filter.2.png?raw=true"><img src="outward-filter.2.png?raw=true" width="40%"></a><br/>
     (Click to enlarge.)
 </p>
 
@@ -147,4 +147,3 @@ Only about todo items for the repository as a whole. Todo items for individual p
 * Add fit testing equipment. However, when using the vaseline trick, quantitative fit testing is not really needed.
 
 * Add printable spare parts (hooks, loops, port covers, valves). If larger parts break, one would instead simply buy another mask for 20 EUR.
-* 
