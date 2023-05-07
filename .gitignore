@@ -1,2 +1,8 @@
 # Ignore Cura project files (for 3D printing a design to a specific printer).
 *.3mf
+
+# Model-specific files only needed during local development or for own 3D prints.
+radiator_hook/Original.Thingiverse3342912.zip
+radiator_hook/radiator_hook.*.v1.*
+radiator_hook/radiator_hook.*.v2.*
+
